@@ -1,0 +1,465 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ysd.mapper.OrdersMapper">
+			<sql id="selectSql">
+				<where>
+		            <if test="CustomerId!=null and CustomerId!=''">
+		                  and u.username = #{CustomerId}
+		            </if>
+		            <if test="Status !=null and Status !=''">
+					    and o.Status like "%"#{Status}"%"
+					</if>
+					<if test="ShipName !=null and ShipName !=''">
+						 and o.ShipName like "%"#{ShipName}"%"
+					</if>
+					<if test="ShipNum !=null and ShipNum !=''">
+						and o.ShipNum like"%"#{ShipNum}"%"
+					</if>
+					<if test="OrderDate !=null and OrderDate !=''">
+						and o.OrderDate &gt;= #{OrderDate} 
+					</if>
+					<if test="s_ebirthday !=null and s_ebirthday!=''">
+						and o.OrderDate &lt;= #{s_ebirthday}
+					</if>
+					<if test="ShipProvince !=null and ShipProvince !=''">
+						and o.ShipProvince like"%"#{ShipProvince}"%"
+					</if>
+		  		</where>
+			</sql>
+ 			<resultMap type="Orders" id="OrdersMapper">
+	 		   <id property="id" column="id"/>
+			   <result property="OrderDate" column="OrderDate"/>
+			   <result property="CustomerId" column="CustomerId"/>
+			   <result property="TotalMoney" column="TotalMoney"/>
+			   <result property="Status" column="Status"/>
+			   <result property="ShipName" column="ShipName"/>
+			   <result property="ShipNum" column="ShipNum"/>
+			   <result property="ShipDate" column="ShipDate"/>
+			   <result property="ShipCountry" column="ShipCountry"/>
+			   <result property="ShipProvince" column="ShipProvince"/>
+			   <result property="ShipCity" column="ShipCity"/>
+			   <result property="ShipTown" column="ShipTown"/>
+			   <result property="ShipAddress" column="ShipAddress"/>
+			   <result property="ShipPostCode" column="ShipPostCode"/>
+			    <result property="Ext2" column="Ext2"/>
+		 	  <association property="user" javaType="User" >
+		 	   <id property="id" column="aid" />
+		 	   <result property="username" column="username"/>
+			   <result property="userpassword" column="userpassword"/>
+			   <result property="Ext1" column="eww"/>
+			   <result property="Ext2" column="eii"/>
+			 </association> 	 
+		 	 <association property="orderDetails" javaType="OrdersDetails" >
+			  <id property="id" column="ordid"/>
+			  <result property="OrderId" column="OrderId"/>
+			  <result property="UnitPrice" column="UnitPrice"/>
+			  <result property="Quantity" column="Quantity"/>
+			  <result property="Color" column="Color"/>
+			  <result property="Remark" column="Remark"/>
+			  <result property="productId" column="productId"/>
+			  <result property="Ext1" column="Ext1"/>	
+			  </association> 	  
+		 	  <association property="address" javaType="Address" >
+			 	<id property="id" column="addressid" />
+			    <result property="userid" column="uid"/>
+			    <result property="name" column="name"/>
+			    <result property="contact" column="contact"/>
+			    <result property="tel" column="tel"/>
+			    <result property="country" column="country"/>
+			    <result property="province" column="province"/>
+			    <result property="city" column="city"/>
+			    <result property="town" column="town"/>
+			    <result property="Address" column="Address"/>
+			    <result property="postcode" column="postcode"/>
+			    <result property="Ext1" column="ee"/>
+			  </association> 	  
+ 	    	 <association property="product" javaType="Product" >
+			  <id property="id" column="pid"/>
+			  <result property="CategoryId" column="CategoryId"/>
+			  <result property="productName" column="productName"/>
+			  <result property="UnitPrice" column="UnitPrice"/>
+			  <result property="SellPrice" column="SellPrice"/>
+			  <result property="DiscountPrice" column="DiscountPrice"/>
+			  <result property="QuantityPerUnit" column="QuantityPerUnit"/>
+			  <result property="clicks" column="clicks"/>
+			  <result property="weight" column="weight"/>
+			  <result property="Size" column="Size"/>
+			  <result property="color" column="color"/>
+			  <result property="Description" column="Description"/>
+			  <result property="Ext1" column="eee"/>
+			  <result property="Ext2" column="eee2"/>
+		     </association> 
+			</resultMap>
+
+
+		 <select id="selectCount" parameterType="Fenye" resultType="_int">
+    select count(*)       from   user u inner JOIN orders  o on o.CustomerId=u.id 
+     <include refid="selectSql"></include>
+ </select>
+ <select id="selectOrders" parameterType="Fenye"  resultMap="OrdersMapper">
+   select  u.id aid,u.username,u.userpassword,u.ext1 eww,u.ext2 eii,o.* from   user u inner JOIN orders  o on o.CustomerId=u.id 
+     <include refid="selectSql"></include>
+    limit #{page},#{limit}
+ </select>
+		 
+		 <select id="selectUser" resultType="User">
+		    select * from user
+		 </select>
+		 
+		
+		 
+		 <insert id="insertOrders"  parameterType="Orders" >
+			INSERT INTO orders (
+				OrderDate,
+				CustomerId,
+				TotalMoney,
+				STATUS,
+				ShipName,
+				ShipNum,
+				ShipDate,
+				ShipCountry,
+				ShipProvince,
+				ShipCity,
+				ShipTown,
+				ShipAddress,
+				ShipPostCode,
+				Ext2 
+			)
+			VALUES
+				(
+					now( ),
+					#{CustomerId},
+					#{TotalMoney},
+					2,
+					#{ShipName},
+					FLOOR( RAND( ) * 1000000000000 ),
+					now( ),
+					#{ShipCountry},
+					#{ShipProvince},
+					#{ShipCity},
+					#{ShipTown},
+					#{ShipAddress},
+					#{ShipPostCode},
+					#{Ext2} 
+				);
+		 </insert>
+		<!--   <update id="updateOrders" parameterType="Orders" >
+		   update orders set ProductId=#{ProductId},CommentContent=#{CommentContent},CommenTime=#{CommenTime},bodyPrc=#{bodyPrc},ProductMarks=#{ProductMarks},ServiceMarks=#{ServiceMarks},Status=#{Status},Reply=#{Reply},Ext1=#{Ext1},Ext2=#{Ext2} where id=#{id}
+		 </update>
+		 <delete id="deleteOrders" parameterType="String">
+		      delete from orders  where id in 
+		     <foreach item="item" index="index" collection="array" 
+		              open="(" separator="," close=")">
+		             #{item}
+		     </foreach>
+		 </delete>  -->  
+		 
+		 
+
+		<update id="updateUser" parameterType="User">
+			update user set username=#{username} where id=#{id} 
+		</update>
+		
+		<update id="updateOrders" parameterType="Orders">
+			update orders set  OrderDate=#{OrderDate},TotalMoney=#{TotalMoney},Status=#{Status},ShipName=#{ShipName},ShipNum=#{ShipNum},ShipDate=#{ShipDate},ShipCountry=#{ShipCountry},ShipProvince=#{ShipProvince},ShipCity=#{ShipCity},ShipTown=#{ShipTown},ShipAddress=#{ShipAddress},ShipPostCode=#{ShipPostCode},Ext2=#{Ext2} where  CustomerId=#{CustomerId} 
+		</update>
+		<update id="updateAddress" parameterType="Address">
+		    update address set tel=#{tel} where userid=#{userid}
+		</update>
+		
+		<update id="updateProduct" parameterType="Product">
+		    update  product set  productName=#{productName} where id=#{id}
+		</update>
+		
+		<update id="updateOrdersDetails" parameterType="OrdersDetails">
+		    update  ordersDetails set  color=#{color} where orderId=#{orderId} and productId=#{productId}
+		</update>
+		
+		<!-- 前台操作订单 -->
+		<!-- 前台删除订单 -->
+		<delete id="deleteOrdersByid" parameterType="_int">
+			delete from orders where id=#{id};
+		</delete>
+		<update id="updateOrderByStuatus" parameterType="_int">
+			UPDATE ordersdetails  set Ext1 =#{0} where OrderId=#{1}
+		</update>
+		<update id="updateOrderByStuatuss" parameterType="_int">
+			UPDATE orders  set Status =#{0} where id=#{1}
+		</update>
+		<select id="selectByUser" resultType="Orders" parameterType="_int">
+			select id from orders where orders.CustomerId=#{userid}
+		</select>
+		<select id="selectOrderByDesc" resultType="_int">
+			select id from orders ORDER BY id desc LIMIT 1
+		</select>
+		<select id="selectOrderid" resultType="_int"  parameterType="_int">
+			select OrderId from ordersdetails where id=#{ordersid}
+		</select>
+		<!-- 支付页面显示订单单号 -->
+		<select id="selectOrdersByDanhao" resultType="String">
+			select ShipNum from orders ORDER BY id desc LIMIT 1 
+		</select>
+		 
+		
+		
+		
+		
+		
+		<!-- 后台操作订单管理 -->
+		 <resultMap type="OrdersDetails" id="OrdersMapperGuanLi">
+		 	<id property="id" column="ordid" />
+		 	<result property="OrderId" column="ordOrderId" />
+		 	<result property="UnitPrice" column="ordUnitPrice" />
+		 	<result property="Quantity" column="ordQuantity" />
+		 	<result property="Color" column="ordColor" />
+		 	<result property="Remark" column="ordRemark" />
+		 	<result property="productId" column="ordproductId" />
+		 	<result property="Ext1" column="ordExt1" />
+		 	
+		 	<association property="product" javaType="Product">
+		 	  <id property="id" column="pid"/>
+			  <result property="CategoryId" column="pCategoryId"/>
+			  <result property="productName" column="pproductName"/>
+			  <result property="UnitPrice" column="pUnitPrice"/>
+			  <result property="SellPrice" column="pSellPrice"/>
+			  <result property="DiscountPrice" column="pDiscountPrice"/>
+			  <result property="QuantityPerUnit" column="pQuantityPerUnit"/>
+			  <result property="clicks" column="pclicks"/>
+			  <result property="weight" column="pweight"/>
+			  <result property="Size" column="pSize"/>
+			  <result property="color" column="pcolor"/>
+			  <result property="Description" column="pDescription"/>
+			  <result property="Ext1" column="pExt1"/>
+			  <result property="Ext2" column="pExt2"/>
+		 	</association>
+		 		
+		 	<association property="productpic" javaType="Productpic">
+		 	  <id property="id" column="picid"/>
+			  <result property="productId" column="picproductId"/>
+			  <result property="picUrl" column="picpicUrl"/>
+			  <result property="PicType" column="picPicType"/>
+			  <result property="creaTime" column="piccreaTime"/>
+			  <result property="color" column="piccolor"/>
+			  <result property="Ext2" column="picExt2"/>
+		 	</association>
+		 		
+		 	<association property="orders" javaType="Orders">
+		 	   <id property="id" column="oid"/>
+			   <result property="OrderDate" column="oOrderDate"/>
+			   <result property="CustomerId" column="oCustomerId"/>
+			   <result property="TotalMoney" column="oTotalMoney"/>
+			   <result property="Status" column="oStatus"/>
+			   <result property="ShipName" column="oShipName"/>
+			   <result property="ShipNum" column="oShipNum"/>
+			   <result property="ShipDate" column="oShipDate"/>
+			   <result property="ShipCountry" column="oShipCountry"/>
+			   <result property="ShipProvince" column="oShipProvince"/>
+			   <result property="ShipCity" column="oShipCity"/>
+			   <result property="ShipTown" column="oShipTown"/>
+			   <result property="ShipAddress" column="oShipAddress"/>
+			   <result property="ShipPostCode" column="oShipPostCode"/>
+			   <result property="Ext2" column="oExt2"/>
+		 	</association>
+		 </resultMap> 
+		 <select id="selectOrdersByidhou" parameterType="_int"  resultType="OrdersDetails"  resultMap="OrdersMapperGuanLi">
+	    
+			SELECT
+			 ordersdetails.id ordid,
+			 ordersdetails.OrderId ordOrderId,
+			 ordersdetails.UnitPrice ordUnitPrice,
+			 ordersdetails.Quantity ordQuantity,
+			 ordersdetails.Color ordColor,
+			 ordersdetails.Remark ordRemark,
+			 ordersdetails.Ext1 ordExt1,
+			 ordersdetails.productId ordproductId,
+			 product.id pid,
+			 product.CategoryId pCategoryId,
+			 product.productName pproductName,
+			 product.UnitPrice pUnitPrice,
+			 product.SellPrice pSellPrice,
+			 product.DiscountPrice pDiscountPrice,
+			 product.QuantityPerUnit pQuantityPerUnit,
+			 product.clicks pclicks,
+			 product.weight pweight,
+			 product.Size pSize,
+			 product.color pcolor,
+			 product.Description pDescription,
+			 product.Ext1 pExt1,
+			 product.Ext2 pExt2,
+			 productpic.id picid,
+			 productpic.productId picproductId,
+			 productpic.picUrl picpicUrl,
+			 productpic.PicType picPicType,
+			 productpic.creaTime piccreaTime,
+			 productpic.color piccolor,
+			 productpic.Ext2 picExt2,
+			 orders.id oid,  
+			 orders.OrderDate oOrderDate,
+			 orders.CustomerId oCustomerId,
+			 orders.TotalMoney oTotalMoney,
+			 orders.`Status` oStatus,
+			 orders.ShipName oShipName,
+			 orders.ShipNum oShipNum,
+			 orders.ShipDate oShipDate,
+			 orders.ShipCountry oShipCountry,
+			 orders.ShipProvince oShipProvince,
+			 orders.ShipCity oShipCity,
+			 orders.ShipTown oShipTown,
+			 orders.ShipAddress oShipAddress,
+			 orders.ShipPostCode oShipPostCode,
+			 orders.Ext2 oExt2
+		FROM
+			ordersdetails
+			INNER JOIN orders ON orders.id = ordersdetails.OrderId
+			INNER JOIN product ON product.id = ordersdetails.productId
+			INNER JOIN productpic ON productpic.productId = product.id
+			
+			AND ordersdetails.OrderId = #{OrderId}
+			
+			AND  productpic.PicType=0
+
+	    </select>
+		<select id="selectCountGuanLi" resultType="_int" parameterType="Fenye">
+		  select count(*) from orders o INNER JOIN  ordersdetails ord on o.id=ord.orderId INNER JOIN product p  on ord.productId=p.id INNER JOIN productpic pc on  pc.productId=p.id  WHERE ord.OrderId=#{OrderId} and pc.pictype=0
+		</select>
+		<select id="selectOrdersGuanLi"  parameterType="Fenye" resultMap="OrdersMapperGuanLi">
+		 
+			SELECT
+			 ordersdetails.id ordid,
+			 ordersdetails.OrderId ordOrderId,
+			 ordersdetails.UnitPrice ordUnitPrice,
+			 ordersdetails.Quantity ordQuantity,
+			 ordersdetails.Color ordColor,
+			 ordersdetails.Remark ordRemark,
+			 ordersdetails.Ext1 ordExt1,
+			 ordersdetails.productId ordproductId,
+			 product.id pid,
+			 product.CategoryId pCategoryId,
+			 product.productName pproductName,
+			 product.UnitPrice pUnitPrice,
+			 product.SellPrice pSellPrice,
+			 product.DiscountPrice pDiscountPrice,
+			 product.QuantityPerUnit pQuantityPerUnit,
+			 product.clicks pclicks,
+			 product.weight pweight,
+			 product.Size pSize,
+			 product.color pcolor,
+			 product.Description pDescription,
+			 product.Ext1 pExt1,
+			 product.Ext2 pExt2,
+			 productpic.id picid,
+			 productpic.productId picproductId,
+			 productpic.picUrl picpicUrl,
+			 productpic.PicType picPicType,
+			 productpic.creaTime piccreaTime,
+			 productpic.color piccolor,
+			 productpic.Ext2 picExt2,
+			 orders.id oid,  
+			 orders.OrderDate oOrderDate,
+			 orders.CustomerId oCustomerId,
+			 orders.TotalMoney oTotalMoney,
+			 orders.`Status` oStatus,
+			 orders.ShipName oShipName,
+			 orders.ShipNum oShipNum,
+			 orders.ShipDate oShipDate,
+			 orders.ShipCountry oShipCountry,
+			 orders.ShipProvince oShipProvince,
+			 orders.ShipCity oShipCity,
+			 orders.ShipTown oShipTown,
+			 orders.ShipAddress oShipAddress,
+			 orders.ShipPostCode oShipPostCode,
+			 orders.Ext2 oExt2
+		FROM
+			ordersdetails
+			INNER JOIN orders ON orders.id = ordersdetails.OrderId
+			INNER JOIN product ON product.id = ordersdetails.productId
+			INNER JOIN productpic ON productpic.productId = product.id
+			 
+			AND ordersdetails.OrderId = #{OrderId}
+			and ordersdetails.Ext1=0
+			AND  productpic.PicType=0
+		  limit #{page},#{limit}
+		</select>
+		<select id="selectOrdersGuanLia"  parameterType="Fenye" resultMap="OrdersMapperGuanLi">
+		 
+			SELECT
+			 ordersdetails.id ordid,
+			 ordersdetails.OrderId ordOrderId,
+			 ordersdetails.UnitPrice ordUnitPrice,
+			 ordersdetails.Quantity ordQuantity,
+			 ordersdetails.Color ordColor,
+			 ordersdetails.Remark ordRemark,
+			 ordersdetails.Ext1 ordExt1,
+			 ordersdetails.productId ordproductId,
+			 product.id pid,
+			 product.CategoryId pCategoryId,
+			 product.productName pproductName,
+			 product.UnitPrice pUnitPrice,
+			 product.SellPrice pSellPrice,
+			 product.DiscountPrice pDiscountPrice,
+			 product.QuantityPerUnit pQuantityPerUnit,
+			 product.clicks pclicks,
+			 product.weight pweight,
+			 product.Size pSize,
+			 product.color pcolor,
+			 product.Description pDescription,
+			 product.Ext1 pExt1,
+			 product.Ext2 pExt2,
+			 productpic.id picid,
+			 productpic.productId picproductId,
+			 productpic.picUrl picpicUrl,
+			 productpic.PicType picPicType,
+			 productpic.creaTime piccreaTime,
+			 productpic.color piccolor,
+			 productpic.Ext2 picExt2,
+			 orders.id oid,  
+			 orders.OrderDate oOrderDate,
+			 orders.CustomerId oCustomerId,
+			 orders.TotalMoney oTotalMoney,
+			 orders.`Status` oStatus,
+			 orders.ShipName oShipName,
+			 orders.ShipNum oShipNum,
+			 orders.ShipDate oShipDate,
+			 orders.ShipCountry oShipCountry,
+			 orders.ShipProvince oShipProvince,
+			 orders.ShipCity oShipCity,
+			 orders.ShipTown oShipTown,
+			 orders.ShipAddress oShipAddress,
+			 orders.ShipPostCode oShipPostCode,
+			 orders.Ext2 oExt2
+		FROM
+			ordersdetails
+			INNER JOIN orders ON orders.id = ordersdetails.OrderId
+			INNER JOIN product ON product.id = ordersdetails.productId
+			INNER JOIN productpic ON productpic.productId = product.id
+			 
+			AND ordersdetails.OrderId = #{OrderId}
+			
+			AND  productpic.PicType=0
+		  limit #{page},#{limit}
+		</select>
+	    <update id="updateOrdersDetailss" parameterType="OrdersDetails">
+			UPDATE ordersdetails  set Ext1=4 where id=#{id}
+		</update>	
+		<select id="selectOrdersDetaisByid"  parameterType="_int" resultType="OrdersDetails" >
+		select * from  OrdersDetails where id=#{id}
+		</select>
+		<update id="updateOrderss" parameterType="OrdersDetails">
+<!-- 	update OrdersDetails set where  id=#{id}  -->
+			UPDATE ordersdetails set UnitPrice =( select 	(SELECT UnitPrice from product where product.id=#{productId}) * #{Quantity}), color=#{color},Quantity=#{Quantity}  where id=#{id}
+	
+		</update>
+		<select id="selectOrdersTypeByid" parameterType="Fenye" resultMap="OrdersMapper">
+		select  u.id aid,u.username,u.userpassword,u.ext1 eww,u.ext2 eii,o.* from   user u inner JOIN orders  o on o.CustomerId=u.id 
+		<include refid="selectSql"/>
+			and o.Status=#{Sta} limit #{page},#{limit} 
+		</select>
+		<select id="selectOrdersByid" resultType="Orders" parameterType="_int">
+			select * from Orders where id=#{id}
+		</select>
+</mapper>
+		
+		
+		

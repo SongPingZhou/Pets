@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <mapper namespace="com.ysd.mapper.NewMapper">
+  		<resultMap type="News" id="newsMapper">
+  		    <id property="nid" column="nid" />
+  		 	<result property="name" column="name" />
+  		 	<result property="details" column="details" />
+  		 	<result property="Ext2" column="nExt2"/>
+  		 <association property="productpic" javaType="Productpic">
+  		 	 <id property="id" column="id"/>
+	  		 <result property="picUrl" column="picUrl" />
+  		 </association>
+  		 <association property="product" javaType="Product">
+  		 	 <id property="id" column="id"/>
+  		 	 <result property="CategoryId" column="CategoryId"/>
+  		 	 <result property="productName" column="productName"/>
+  		 	 <result property="UnitPrice" column="UnitPrice"/>
+  		 	 <result property="SellPrice" column="SellPrice"/>
+  		 	 <result property="DiscountPrice" column="DiscountPrice"/>
+  		 	 <result property="QuantityPerUnit" column="QuantityPerUnit"/>
+  		 	 <result property="clicks" column="clicks"/>
+  		 	 <result property="weight" column="weight"/>
+  		 	 <result property="Size" column="Size"/>
+  		 	 <result property="color" column="color"/>
+  		 	 <result property="Description" column="Description"/>
+  		 	 <result property="Ext1" column="Ext1"/>
+  		 	 <result property="Ext2" column="Ext2"/>
+  		 </association>
+  	</resultMap>
+  	
+  	<select id="selectNews" resultMap="newsMapper">
+  		SELECT
+			product.id,
+			news.nid,
+			news.`name`,
+			news.details,
+			productpic.picUrl 
+		FROM
+			news
+			INNER JOIN productpic ON news.pid = productpic.productId
+			INNER JOIN product ON productpic.productId = product.id 
+		WHERE
+			productpic.PicType = 0
+	</select>
+	<!-- 显示所有 -->
+	<select id="selectAllNews" resultMap="newsMapper">
+  		SELECT
+			product.id,
+			news.nid,
+			news.`name`,
+			news.details,
+			productpic.picUrl 
+		FROM
+			news
+			INNER JOIN productpic ON news.pid = productpic.productId
+			INNER JOIN product ON productpic.productId = product.id 
+		WHERE
+			productpic.PicType = 0
+	</select><!-- 上下两个一样 -->
+	<select id="getById" resultMap="newsMapper">
+  		SELECT
+			product.id,
+			news.nid,
+			news.`name`,
+			news.details,
+			productpic.picUrl 
+		FROM
+			news
+			INNER JOIN productpic ON news.pid = productpic.productId
+			INNER JOIN product ON productpic.productId = product.id 
+		WHERE
+			productpic.PicType = 0
+			AND news.nid=#{nid}
+	</select>
+	<select id="selectProductById" resultMap="newsMapper" parameterType="_int">
+  		select * FROM product WHERE id=#{id}
+  	</select>
+  	
+  	
+  	
+  	
+  	
+  	
+  	<resultMap type="News" id="newsMappertest">
+  		    <id property="nid" column="nid" />
+  		 	<result property="name" column="name" />
+  		 	<result property="details" column="details" />
+  		 <association property="productpic" javaType="Productpic">
+  		 	 <id property="id" column="id"/>
+	  		 <result property="picUrl" column="picUrl" />
+  		 </association> 		
+  	</resultMap>
+  	<select id="selectCount" parameterType="Fenye" resultType="_int">
+  		select count(*) froM  news n INNER JOIN product p on n.pid=p.id INNER JOIN productpic pc on p.id=pc.ProductId  WHERE pc.pictype=0
+  	</select>
+  		<select id="selectNew" resultMap="newsMappertest" parameterType="Fenye" >
+  		 select news.nid,news.`name`,news.details,productpic.picUrl from news INNER JOIN productpic on  news.pid=productpic.productId where productpic.PicType=0 
+  	     limit #{page},#{limit}
+  	</select>
+  	<insert id="insertNews" parameterType="News">
+  	   insert into news(name,details,pid) values(#{name},#{details},#{pid})
+  	</insert>
+  		<delete id="deleteNews" parameterType="String">
+		      delete from news  where nid in 
+		     <foreach item="item" index="index" collection="array" 
+		              open="(" separator="," close=")">
+		             #{item}
+		     </foreach>
+ 		</delete> 
+  	
+  </mapper>

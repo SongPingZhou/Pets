@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <mapper namespace="com.ysd.mapper.UserCustomersMapper">
+  	
+  	<select id="selectUserCustomers" resultType="UserCustomers" parameterType="_int">
+  		SELECT * FROM usercustomers where userId=#{id};
+  	</select>
+  	<resultMap type="Address" id="resultUserAddress">
+  		    <id property="id" column="a_id" />
+  		 	<result property="userid" column="a_userid" />
+  		 	<result property="name" column="a_name" />
+  		 	<result property="contact" column="a_contact" />
+  		 	<result property="tel" column="a_tel" />
+  		 	<result property="country" column="a_country" />
+  		 	<result property="province" column="a_province" />
+  		 	<result property="city" column="a_city" />
+  		 	<result property="town" column="a_town" />
+  		 	<result property="Address" column="a_Address" />
+  		 	<result property="postcode" column="a_postcode" />
+  		 	<result property="Ext1" column="a_Ext1" /><!-- 这个扩展字段用成是否是默认收获地址0否，1是 -->
+  		 <association property="user" javaType="User">
+  		 	 <id property="id" column="u_id"/>
+	  		 <result property="username" column="u_username" />
+	  		 <result property="userpassword" column="u_userpassword" />
+	  		 <result property="Ext1" column="u_Ext1" />
+	  		 <result property="Ext2" column="u_Ext2" />
+  		 </association>
+  	</resultMap>
+  	<!-- 查询用户的地址 -->
+  	<select id="selectUserAddress" resultMap="resultUserAddress" parameterType="_int">
+  		select 
+			user.id u_id,
+			user.username u_username,
+			user.userpassword u_userpassword,
+			user.Ext1 u_Ext1,
+			user.Ext2 u_Ext2,
+			address.id a_id,
+			address.userid a_userid,
+			address.name a_name,
+			address.contact a_contact,
+			address.tel a_tel,
+			address.country a_country,
+			address.province a_province,
+			address.city a_city,
+			address.town a_town,
+			address.Address a_Address,
+			address.postcode a_postcode,
+			address.Ext1 a_Ext1
+			from user INNER JOIN address on address.userid=user.id  and user.id=#{id};
+  	</select>
+  	 <resultMap type="Comments" id="resultUserComments">
+  			 <id property="id" column="c_id"/>
+	  		 <result property="ProductId" column="c_ProductId" />
+	  		 <result property="CommentContent" column="c_CommentContent"/>
+	  		 <result property="CommenTime" column="c_CommenTime"/>
+	  		 <result property="bodyPrc" column="c_bodyPrc"/>
+	  		 <result property="ProductMarks" column="c_ProductMarks"/>
+	  		 <result property="ServiceMarks" column="c_ServiceMarks"/>
+	  		 <result property="Status" column="c_Status"/>
+	  		 <result property="Reply" column="c_Reply"/>
+	  		 <result property="Ext1" column="c_Ext1"/>
+	  		 <result property="Ext2" column="c_Ext2"/>
+	  		 <association property="listUser" javaType="User">
+	  		 	 <id property="id" column="u_id"/>
+		  		 <result property="username" column="u_username" />
+		  		 <result property="userpassword" column="u_userpassword" />
+		  		 <result property="Ext1" column="u_Ext1" />
+		  		 <result property="Ext2" column="u_Ext2" />
+	  		 </association>
+	  		 <association property="product" javaType="Product">
+	  		 	 <id property="id" column="p_id" />
+	  		 	 <result property="productName" column="p_productName"/>
+	  		 	 <result property="UnitPrice" column="p_UnitPrice"/>
+	  		 	 <result property="picUrl" column="p_picUrl"/>
+	  		 </association>
+	  		 <association property="productpic" javaType="Productpic">
+	  		 	 <result property="picUrl" column="p_picUrl" />
+	  		 </association>
+  	</resultMap> 
+  	
+  	<select id="selectUserComments" resultMap="resultUserComments" parameterType="_int">
+  		SELECT 
+  			USER.id u_id,
+			USER.username u_username,
+			USER.userpassword u_userpassword,
+			USER.Ext1 u_Ext1,
+			USER.Ext2 u_Ext2,
+			comments.id c_id,
+			comments.ProductId c_ProductId,
+			comments.CommentContent c_CommentContent,
+			comments.CommenTime c_CommenTime,
+			comments.bodyPrc c_bodyPrc,
+			comments.ProductMarks c_ProductMarks,
+			comments.ServiceMarks c_ServiceMarks,
+			comments.`Status` c_Status,
+			comments.Reply c_Reply,
+			comments.Ext1 c_Ext1,
+			comments.Ext2 c_Ext2,
+			product.id p_id,
+			product.productName p_productName,
+			product.UnitPrice p_UnitPrice,
+			productpic.picUrl p_picUrl
+		FROM
+			USER INNER JOIN comments ON comments.Ext1 = USER.id
+			INNER JOIN product on product.id = comments.ProductId 
+			INNER JOIN productpic on productpic.productId=product.id
+			AND USER.id = #{id} order by comments.id desc
+  	</select>
+  	<!-- 查询用户的所有订单 -->
+  	<select id="selectOrders" resultType="Orders" parameterType="_int">
+  		select * from orders where CustomerId=#{id};
+  	</select>
+  	<select id="selectOrdersByStats" resultType="Orders" parameterType="orders" >
+  		select * from orders where CustomerId=#{CustomerId} and Status=#{Status};
+  	</select>
+  	<update id="updateUsercustomers" parameterType="UserCustomers">
+  		update usercustomers
+	  		set RealName=#{RealName},
+	  		Birthday=#{Birthday},
+	  		Eamail=#{Eamail},
+	  		Mphone=#{Mphone},
+	  		Remark=#{Remark}
+  			where UserId=#{UserId}
+  	</update>
+  </mapper>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <mapper namespace="com.ysd.mapper.ProductPicMapper">
+     	<select id="selectCount" parameterType="Fenye" resultType="_int">
+		    select count(*) from productpic where PicType=2
+		 </select>
+		 <select id="selectProductPic" parameterType="Fenye" resultType="Productpic">
+		    select * from productpic where PicType=2
+		    limit #{page},#{limit}
+		 </select>
+		  <select id="selectProductPicByid" parameterType="_int" resultType="Productpic" >
+			 select * from productpic where id=#{id}
+		 </select>
+  
+  	<insert id="insertProductPic" parameterType="Productpic">
+  		insert into productpic(productId,picUrl,PicType,creaTime,color) VALUES(#{productId},#{picUrl},1,now(),#{color});
+  	</insert>
+  	<!-- <insert id="insertDProductPic" parameterType="Productpic">
+  		insert into productpic(productId,picUrl,PicType,creaTime,color) VALUES(#{productId},#{picUrl},1,now(),#{color});
+  	</insert> -->
+  	<update id="updateProductPic" parameterType="Productpic">
+		update productpic set picUrl=#{picUrl},creaTime=now() where id=#{id} 
+	</update>
+  	<select id="selectProductPicByTuPian" resultType="Productpic" parameterType="String">
+		select color from productpic where id=#{id};
+  	</select>
+  	<!-- 查询最后添加的配图id -->
+  	<select id="selectProductpicByDesc" resultType="_int">
+  		SELECT id FROM `productpic` ORDER BY id desc LIMIT 0,1
+  	</select>
+  	<select id="selectProductPicqian"  resultType="Productpic">
+		    select * from productpic where PicType=2
+		  
+		 </select>
+  	
+  </mapper>

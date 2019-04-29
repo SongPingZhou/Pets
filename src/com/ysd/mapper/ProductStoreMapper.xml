@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ysd.mapper.ProductStoreMapper">
+<sql id="selectSql">
+		<where>
+            <if test="productCategoryName!=null and productCategoryName!=''">
+                  and pc.productCategoryName like "%"#{productCategoryName}"%"
+            </if>
+            <if test="productName !=null and productName !=''">
+			    and p.productName like "%"#{productName}"%"
+			</if>
+			<if test="StartSellPrice !=null and StartSellPrice !=''">
+				 and p.SellPrice  &gt;= #{StartSellPrice}
+			</if>
+			<if test="EndSellPrice !=null and EndSellPrice !=''">
+				and p.SellPrice   &lt;= #{EndSellPrice}
+			</if>
+			<if test="QuantityInStock !=null and QuantityInStock !=''">
+				and ps.QuantityInStock &gt;#{QuantityInStock}
+			</if>
+			<if test="EndQuantityInStock !=null and EndQuantityInStock !=''">
+				and ps.QuantityInStock &lt;#{EndQuantityInStock}
+			</if>
+ 	 </where>
+</sql>
+<resultMap type="Productstore" id="resultProductstore">
+			  <id property="id" column="psid"/>
+			  <result property="ProductPicId" column="psProductPicId"/>
+			  <result property="QuantityInStock" column="psQuantityInStock"/>
+			  <result property="MerchantId" column="psMerchantId"/>
+			  <result property="Size" column="psSize"/>
+			  <result property="Ext2" column="psExt2"/>
+	  <association property="productcategory" javaType="Productcategory" >
+		    <id property="id" column="pcid" />
+		 	<result property="productCategoryName" column="pcproductCategoryName" />
+		 	<result property="ParentId" column="pcParentId" />
+		 	<result property="Ext1" column="Ext11" />
+		 	<result property="Ext2" column="Ext22" />
+		</association> 	   
+	 	<association property="product" javaType="Product" >
+	 	 	  <id property="id" column="pid"/>
+			  <result property="CategoryId" column="pCategoryId"/>
+			  <result property="productName" column="pproductName"/>
+			  <result property="picUrl" column="ppicUrl"/>
+			  <result property="UnitPrice" column="pUnitPrice"/>
+			  <result property="SellPrice" column="pSellPrice"/>
+			  <result property="DiscountPrice" column="pDiscountPrice"/>
+			  <result property="QuantityPerUnit" column="pQuantityPerUnit"/>
+			  <result property="clicks" column="pclicks"/>
+			  <result property="weight" column="pweight"/>
+			  <result property="Size" column="pSize"/>
+			  <result property="color" column="pcolor"/>
+			  <result property="Description" column="pDescription"/>
+			  <result property="Ext1" column="pExt1"/>
+			  <result property="Ext2" column="pExt2"/>
+	    </association> 	  
+ 	    <association property="productpic" javaType="Productpic" >
+			 <id property="id" column="idr" />
+		 	<result property="productId" column="productIdr" />
+		 	<result property="picUrl" column="picUrlr" />
+		 	<result property="PicType" column="PicTyper" />
+		 	<result property="creaTime" column="creaTimer" />
+		 	<result property="color" column="colorr" />
+		 	<result property="Ext2" column="Ext2r" />
+		</association> 	  
+ </resultMap>
+
+
+<select id="selectCount" parameterType="Fenye" resultType="_int" >
+   	select count(1) from  productcategory  pc INNER JOIN  product p  on pc.id=p.CategoryId  INNER JOIN productpic pp on p.id=pp.productId INNER JOIN productstore ps on pp.id=ps.ProductPicId and pp.PicType=1
+ </select>
+ <select id="selectProductStore" parameterType="Fenye" resultType="Productpic" resultMap="resultProductstore">
+  	SELECT
+		pc.id pcid,
+		pc.productCategoryName pcproductCategoryName,
+		pc.ParentId pcParentId,
+		pc.Ext1 Ext11,
+		pc.Ext2 Ext2,
+		p.id pid,
+		p.CategoryId pCategoryId,
+		p.productName pproductName,
+		p.UnitPrice pUnitPrice,
+		p.SellPrice pSellPrice,
+		p.DiscountPrice pDiscountPrice,
+		p.QuantityPerUnit pQuantityPerUnit,
+		p.clicks pclicks,
+		p.weight pweight,
+		p.Size pSize,
+		p.color pcolor,
+		p.Description pDescription,
+		p.Ext1 pExt1,
+		p.Ext2 pExt2,
+		pp.id idr,
+		pp.productId productIdr,
+		pp.picUrl picUrlr,
+		pp.PicType PicTyper,
+		pp.creaTime creaTimer,
+		pp.color colorr,
+		pp.Ext2 Ext2r,
+		ps.id psid,
+		ps.ProductPicId psProductPicId,
+		ps.QuantityInStock psQuantityInStock,
+		ps.MerchantId psMerchantId,
+		ps.Size psSize,
+		ps.Ext2 psExt2 
+	FROM
+		productcategory pc
+		INNER JOIN product p ON pc.id = p.CategoryId
+		INNER JOIN productpic pp ON p.id = pp.productId
+		INNER JOIN productstore ps ON pp.id = ps.ProductPicId
+		and pp.PicType=1
+	<include refid="selectSql"></include>
+	<!-- GROUP BY p.productName -->
+  limit #{page},#{limit}
+ </select>
+
+ <select id="selectProductStoreByid" resultMap="resultProductstore" parameterType="_int"  >
+	select 
+		pc.id pcid,
+		pc.productCategoryName pcproductCategoryName,
+		pc.ParentId pcParentId,
+		pc.Ext1 Ext11,
+		pc.Ext2 Ext2,
+		p.id pid,
+		p.CategoryId pCategoryId,
+		p.productName pproductName,
+		p.UnitPrice pUnitPrice,
+		p.SellPrice pSellPrice,
+		p.DiscountPrice pDiscountPrice,
+		p.QuantityPerUnit pQuantityPerUnit,
+		p.clicks pclicks,
+		p.weight pweight,
+		p.Size pSize,
+		p.color pcolor,
+		p.Description pDescription,
+		p.Ext1 pExt1,
+		p.Ext2 pExt2,
+		pp.id idr,
+		pp.productId productIdr,
+		pp.picUrl picUrlr,
+		pp.PicType PicTyper,
+		pp.creaTime creaTimer,
+		pp.color colorr,
+		pp.Ext2 Ext2r,
+		ps.id psid,
+		ps.ProductPicId psProductPicId,
+		ps.QuantityInStock psQuantityInStock,
+		ps.MerchantId psMerchantId,
+		ps.Size psSize,
+		ps.Ext2 psExt2 
+	 from  productcategory  pc INNER JOIN  product p  on pc.id=p.CategoryId  INNER JOIN productpic pp on p.id=pp.productId INNER JOIN productstore ps on pp.id=ps.ProductPicId 
+	where ps.id=#{id}
+ </select>
+<!--  <insert id="insertProductCategory"  parameterType="Productcategory">
+  <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">  
+              SELECT LAST_INSERT_ID()  
+  </selectKey>  
+ insert into  Productcategory(productCategoryName) values(#{productCategoryName})
+ </insert> -->
+ <insert id="insertProduct" parameterType="Product" >
+ <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">  
+              SELECT LAST_INSERT_ID()  
+  </selectKey>  
+ insert into  Product(CategoryId,productName,SellPrice,Size) values(#{CategoryId},#{productName},#{SellPrice},#{Size});
+ </insert>
+ <insert id="insertProductPic" parameterType="Productpic" >
+ <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">  
+              SELECT LAST_INSERT_ID()  
+  </selectKey>  
+ insert into  Productpic(productId,picUrl,PicType,creaTime) values(#{productId},#{picUrl},0,now());
+ </insert>
+  <insert id="insertProductStore" parameterType="Productstore" > 
+ insert into  Productstore(ProductPicId,QuantityInStock) values(#{ProductPicId},#{QuantityInStock});
+ </insert>
+ 
+ 
+ <!-- 前台使用  -->
+ 	<update id="updateProductStore" parameterType="_int">
+ 		update productstore set QuantityInStock =QuantityInStock-#{0} where ProductPicId=#{1}
+ 	</update>
+ 	<update id="updateProductStoreAdd" parameterType="_int">
+ 		update productstore set QuantityInStock =QuantityInStock+#{0} where ProductPicId=#{1}
+ 	</update>
+ 	  <select id="selectProductstoreOne" parameterType="_int" resultType="Productstore"  resultMap="resultProductstore"> 
+      SELECT
+		pc.id pcid,
+		pc.productCategoryName pcproductCategoryName,
+		pc.ParentId pcParentId,
+		pc.Ext1 Ext11,
+		pc.Ext2 Ext2,
+		p.id pid,
+		p.CategoryId pCategoryId,
+		p.productName pproductName,
+		p.UnitPrice pUnitPrice,
+		p.SellPrice pSellPrice,
+		p.DiscountPrice pDiscountPrice,
+		p.QuantityPerUnit pQuantityPerUnit,
+		p.clicks pclicks,
+		p.weight pweight,
+		p.Size pSize,
+		p.color pcolor,
+		p.Description pDescription,
+		p.Ext1 pExt1,
+		p.Ext2 pExt2,
+		pp.id idr,
+		pp.productId productIdr,
+		pp.picUrl picUrlr,
+		pp.PicType PicTyper,
+		pp.creaTime creaTimer,
+		pp.color colorr,
+		pp.Ext2 Ext2r,
+		ps.id psid,
+		ps.ProductPicId psProductPicId,
+		ps.QuantityInStock psQuantityInStock,
+		ps.MerchantId psMerchantId,
+		ps.Size psSize,
+		ps.Ext2 psExt2 
+FROM
+	productcategory pc
+	INNER JOIN product p ON pc.id = p.CategoryId
+	INNER JOIN productpic pp ON p.id = pp.productId
+	INNER JOIN productstore ps ON pp.id = ps.ProductPicId
+	where ps.id=#{id} 
+	</select>
+		<update id="updateProductStorehou" parameterType="_int" >
+			UPDATE productstore  set `QuantityInStock` =#{QuantityInStock} where id=#{id}
+		</update>
+	<!-- 后台添加配图的库存 -->
+	<insert id="insertProductStoreSize" parameterType="_int">
+		insert into productstore(ProductPicId,QuantityInStock) VALUES(#{0},#{1})
+	</insert>
+</mapper>

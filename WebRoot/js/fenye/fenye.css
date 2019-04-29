@@ -1,0 +1,18 @@
+<style type="text/css">
+*{margin:0;padding:0;list-style-type:none;}
+body{color:#000;font-family:microsoft yahei;}
+
+/* content */
+div#content{width:700px;margin:40px auto 0 auto;}
+div#content ul#itemContainer li{display:inline-block;margin:5px;zoom:1;*display:inline;}
+div#content ul#itemContainer ll li img{vertical-align:bottom;width:125px;height:125px;}
+.holder{margin:15px 0;text-align:center;}
+.holder a{font-size:12px;cursor:pointer;margin:0 5px;color:#000;padding:2px 5px;}
+.holder a:hover{background-color:#eee;color:#FF4242;}
+.holder a.jp-previous{margin-right:15px;}
+.holder a.jp-next{margin-left:15px;}
+.holder a.jp-current, a.jp-current:hover{color:#FF4242;font-weight:bold;}
+.holder a.jp-disabled, a.jp-disabled:hover{color:#eee;}
+.holder a.jp-current, a.jp-current:hover,.holder a.jp-disabled, a.jp-disabled:hover{cursor:default;background:none;}
+.holder span{margin:0 5px;}
+</style>  

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <mapper namespace="com.ysd.mapper.LatelyMapper">
+	  <insert id="insertLately" parameterType="Lately"> 
+	    insert into lately(productid,userid,Ext1) values(#{productid},#{userid},now());
+	  </insert>
+	  
+	  <select id="selectLately" parameterType="Lately" resultType="Lately">
+	    select *from lately  where  productid=#{productid}
+	  </select>
+	  
+      <update id="updateLately">
+	    update lately set Ext1=now() where id=#{id};
+	  </update>
+	  
+	  <select id="selectLatelyByUserid" resultType="Lately" parameterType="_int">
+	  	 select * from lately  where  userid = #{userid} ORDER BY Ext1 ASC;
+	  </select>
+	  
+	  <delete id="deleteLatelyByTime" parameterType="_int">
+	    delete from lately where id=#{id}
+	  </delete>
+  
+  </mapper>

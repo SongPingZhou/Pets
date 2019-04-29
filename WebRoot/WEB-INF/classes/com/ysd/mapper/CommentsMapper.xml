@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ysd.mapper.CommentsMapper">
+		<sql id="selectSql">
+			<where>
+		          <choose>
+			          <when test="bodyPrc !=null and bodyPrc !=''">
+			          and o.bodyPrc !=''
+			          </when>
+			          <otherwise>
+			          and o.bodyPrc =''  OR bodyPrc is NULL 
+			          </otherwise>
+		          </choose>
+		  </where>
+		</sql>
+	 <resultMap type="Comments" id="CommentsMapper">
+	 	<id property="id" column="aid" />
+	 	<result property="ProductId" column="ProductId" />
+	 	<result property="CommentContent" column="CommentContent" />
+	 	<result property="CommenTime" column="CommenTime" />
+	 	<result property="bodyPrc" column="bodyPrc" />
+	 	<result property="ProductMarks" column="ProductMarks" />
+	 	<result property="ServiceMarks" column="ServiceMarks" />
+	 	<result property="Status" column="Status" />
+	 	<result property="Reply" column="Reply" />
+	 	<result property="Ext1" column="Ext1" />
+	 	<result property="Ext2" column="Ext2" />
+ 	    <association property="product" javaType="Product" >
+			  <id property="id" column="id"/>
+			  <result property="CategoryId" column="CategoryId"/>
+			  <result property="productName" column="productName"/>
+			  <result property="picUrl" column="picUrl"/>
+			  <result property="UnitPrice" column="UnitPrice"/>
+			  <result property="SellPrice" column="SellPrice"/>
+			  <result property="DiscountPrice" column="DiscountPrice"/>
+			  <result property="QuantityPerUnit" column="QuantityPerUnit"/>
+			  <result property="clicks" column="clicks"/>
+			  <result property="weight" column="weight"/>
+			  <result property="Size" column="Size"/>
+			  <result property="color" column="color"/>
+			  <result property="Description" column="Description"/>
+			  <result property="Ext1" column="Ext1"/>
+			  <result property="Ext2" column="Ext2"/>
+		</association> 	
+		<association property="user" javaType="User">
+			 <result property="username" column="username"/>
+		</association>  
+	 </resultMap>
+	 
+	 <select id="selectCount" parameterType="Fenye" resultType="_int" >
+	     select count(*) from  comments o  inner JOIN product p on p.id=o.ProductId
+	 </select>
+	 
+	 <select id="selectComments" parameterType="Fenye" resultType="Comments" resultMap="CommentsMapper">
+	  select o.id aid,o.CommentContent,o.CommenTime,o.bodyPrc,o.ProductMarks,o.ServiceMarks,o.Status,o.Reply,o.Ext1,o.Ext2,p.*,`user`.username  from  comments o  inner JOIN product p on p.id=o.ProductId INNER JOIN `user` on `user`.id=o.Ext1
+	    limit #{page},#{limit}
+	 </select>
+	
+	 <select id="SelectCommentsTypeByid" parameterType="Fenye" resultType="Comments" resultMap="CommentsMapper">
+	   select o.id aid,o.CommentContent,o.CommenTime,o.bodyPrc,o.ProductMarks,o.ServiceMarks,o.Status,o.Reply,o.Ext1,o.Ext2,p.* from  comments o  inner JOIN product p on p.id=o.ProductId
+	  <include refid="selectSql"></include>
+	  limit #{page},#{limit} 
+	 </select>
+	
+	 <select id="selectCommentsByid" parameterType="_int"  resultMap="CommentsMapper">
+		  select o.id aid,o.CommentContent,o.CommenTime,o.bodyPrc,o.ProductMarks,o.ServiceMarks,o.Status,o.Reply,o.Ext1,o.Ext2,p.*,`user`.username from  comments o  inner JOIN product p on p.id=o.ProductId INNER JOIN `user` on `user`.id=o.Ext1 where o.id=#{id}
+	 </select>
+	 
+	 <insert id="insertComments"  parameterType="Comments" >
+		insert into  comments(ProductId,CommentContent,CommenTime,bodyPrc,ProductMarks,ServiceMarks,Status,Reply,Ext1,Ext2) values(#{ProductId},#{CommentContent},#{CommenTime},#{bodyPrc},#{ProductMarks},#{ServiceMarks},#{Status},#{Reply},#{Ext1},#{Ext2})
+	 </insert>
+	 
+	  <update id="updateComments" parameterType="Comments">
+	  	update comments set bodyPrc=#{CommentContent},CommenTime=#{CommenTime} where id=#{id} 
+	  </update>
+	  
+	 <delete id="deleteComments" parameterType="String">
+	      delete from comments  where id in 
+	     <foreach item="item" index="index" collection="array" 
+	              open="(" separator="," close=")">
+	             #{item}
+	     </foreach>
+	 </delete> 
+	 
+	 <insert id="insertComment" parameterType="Comments">
+	 	INSERT INTO comments ( ProductId, CommentContent, CommenTime, ProductMarks,ServiceMarks, STATUS, Reply, Ext1 ,Ext2)
+		VALUES
+		(#{ProductId},#{CommentContent},now(),#{ProductMarks},#{ServiceMarks},#{Status},0,#{Ext1},0)
+	 </insert>
+	 
+	 <!-- 点赞加一 -->
+	 <update id="updateCommentByExt" parameterType="_int">
+	 	UPDATE comments set Ext2 = Ext2+ 1 where id=#{id}
+	 </update>
+	 <!-- 点赞减一 -->
+	  <update id="updateCommentByExtReduce" parameterType="_int">
+	 	UPDATE comments set Ext2 = Ext2 - 1 where id=#{id}
+	 </update>
+	 <resultMap type="Comments" id="resuAllComments">
+	 	<result property="CommentContent" column="CommentContent" />
+	 	<result property="ProductMarks" column="ProductMarks" />
+	 	<result property="Ext2" column="Ext2" />
+	 	<association property="listUser" javaType="User">
+	 		<result property="username" column="username" />
+	 	</association>
+	 	<association property="product" javaType="Product">
+	 		<id property="id" column="pid" />
+	 		<result property="productName" column="productName" />
+	 	</association>
+	 	<association property="productpic" javaType="Productpic">
+	 		<result property="picUrl" column="picUrl" />
+	 	</association>
+	 </resultMap>
+	 <select id="selectCommentsByExt2" resultMap="resuAllComments">
+	 	SELECT
+			`user`.username,product.id pid,productpic.picUrl,product.productName,comments.CommentContent,comments.ProductMarks,comments.Ext2 
+		FROM
+			comments
+			INNER JOIN `user` ON `user`.id = comments.Ext1
+			INNER JOIN product ON comments.ProductId = product.id
+			INNER JOIN productpic ON productpic.productId = product.id 
+			AND productpic.PicType = 0
+			ORDER BY (comments.Ext2+0) desc
+			LIMIT 0,6
+	 </select>
+	 
+	 
+	 <resultMap type="Comments" id="a">
+	 	<result property="CommentContent" column="CommentContent" />
+	 	<result property="ProductMarks" column="ProductMarks" />
+	 	<result property="Ext2" column="Ext2" />
+	 	<association property="listUser" javaType="User">
+	 		<result property="username" column="username" />
+	 	</association>
+	 	<association property="product" javaType="Product">
+	 		<id property="id" column="id" />
+	 		<result property="productName" column="productName" />
+	 	</association>
+	 	<association property="productpic" javaType="Productpic">
+	 		<result property="picUrl" column="picUrl" />
+	 	</association>
+	 </resultMap>
+	 <select id="selectCommentszhl" resultMap="a">
+	 	SELECT
+			productpic.picUrl,product.productName,comments.ProductMarks,comments.Ext2 
+		FROM
+			comments
+			INNER JOIN `user` ON `user`.id = comments.Ext1
+			INNER JOIN product ON comments.ProductId = product.id
+			INNER JOIN productpic ON productpic.productId = product.id 
+			AND productpic.PicType = 0
+			ORDER BY (comments.Ext2+0) Asc
+			LIMIT 0,2
+	 </select>
+</mapper>

@@ -1,0 +1,532 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <mapper namespace="com.ysd.mapper.ProductMapper">
+  
+  <sql id="selectSql">
+		<where>
+            <if test="CategoryId!=null and CategoryId!=''">
+                  and p.CategoryId =#{CategoryId}
+            </if> 
+            <if test="productName !=null and productName !=''">
+			    and p.productName like "%"#{productName}"%"
+			</if>
+			<if test="StartSellPrice !=null and StartSellPrice !=''">
+				 and p.SellPrice  &gt;= #{StartSellPrice}
+			</if>
+			<if test="EndSellPrice !=null and EndSellPrice !=''">
+				and p.SellPrice   &lt;= #{EndSellPrice}
+			</if>
+			<if test="clicks !=null and clicks !=''">
+				and p.clicks=#{clicks}
+			</if>
+			
+ 	 </where>
+</sql>
+  
+  
+  	<resultMap type="Product" id="resultProduct">
+			  <id property="id" column="aid"/>
+			  <result property="CategoryId" column="categoryId"/>
+			  <result property="productName" column="productName"/>
+			  <result property="UnitPrice" column="unitPrice"/>
+			  <result property="SellPrice" column="sellPrice"/>
+			  <result property="DiscountPrice" column="discountPrice"/>
+			  <result property="QuantityPerUnit" column="quantityPerUnit"/>
+			  <result property="clicks" column="clicks"/>
+			  <result property="weight" column="weight"/>
+			  <result property="Size" column="size"/>
+			  <result property="color" column="color"/>
+			  <result property="Description" column="description"/>
+			  <result property="Ext1" column="ext1"/>
+			  <result property="Ext2" column="ext3"/>
+			  <result property="" column="" />
+		  <association property="pro" javaType="Productpic">
+			  <id property="id" column="id"/>
+			  <result property="productId" column="productId"/>
+			  <result property="picUrl" column="picUrl"/>
+			  <result property="PicType" column="PicType"/>
+			  <result property="creaTime" column="creaTime"/>
+			  <result property="color" column="color"/>
+			  <result property="Ext2" column="Ext2"/>
+		  </association>
+ 	 </resultMap>
+  	<select id="selectByClass" resultMap="resultProduct">
+  		select product.id aid,product.productName,productpic.picUrl from product inner join productpic on  product.id=productpic.productId;
+  	</select> 
+  	<select id="selectAllProduct" resultMap="resultProduct" parameterType="_int">
+  		SELECT
+		product.id aid,
+		product.productName,
+		productpic.picUrl,
+		product.SellPrice,
+		product.DiscountPrice,
+		product.UnitPrice,
+		product.QuantityPerUnit,
+		product.clicks,
+		product.weight,
+		product.Size,
+		product.color,
+		product.Description 
+	FROM
+		product 	INNER JOIN productcategory on  product.CategoryId = productcategory.id
+		INNER JOIN productpic ON  product.id = productpic.productId 
+		AND productcategory.ParentId=#{id}
+		AND productpic.PicType = 0 
+		ORDER BY
+		product.DiscountPrice ASC
+	</select>
+ 	<!-- 查询所有子类的商品 -->
+ 	<select id="selectAllProductCateGorg" resultMap="resultProduct" parameterType="_int">
+  		SELECT
+			product.id aid,
+			product.productName,
+			productpic.picUrl,
+			product.SellPrice,
+			product.DiscountPrice,
+			product.UnitPrice,
+			product.QuantityPerUnit,
+			product.clicks,
+			product.weight,
+			product.Size,
+			product.color,
+			product.Description 
+		FROM
+			product 	INNER JOIN productcategory on  product.CategoryId = productcategory.id
+			INNER JOIN productpic ON  product.id = productpic.productId 
+			AND productcategory.ParentId=#{0} and productcategory.id=#{1}
+			AND productpic.PicType = 0 
+			ORDER BY
+			product.DiscountPrice ASC
+	</select>
+	<!-- 满意度 -->
+	<select id="selectProductByLately" resultMap="resultProduct" parameterType="_int">
+		SELECT
+		product.id aid,product.productName,productpic.picUrl,product.SellPrice,product.DiscountPrice,product.UnitPrice,product.QuantityPerUnit,
+			product.clicks,product.weight,product.Size,product.color,product.Description,sum( comments.productMarks ) / count( 1 ) as mayidu 
+		FROM
+		comments
+		INNER JOIN product ON product.id = comments.ProductId  INNER JOIN productpic on productpic.productId=product.id
+		AND comments.productId =ANY( SELECT id FROM product )
+		GROUP BY  comments.ProductId
+		ORDER BY sum( comments.productMarks ) / count( 1 )   desc 
+	</select>
+	
+	<select id="selectAllProductByTimeAndClass" resultMap="resultProduct" parameterType="_int">
+		select  product.id aid,product.productName,productpic.picUrl,product.SellPrice,product.DiscountPrice,product.UnitPrice,			product.QuantityPerUnit,
+		product.clicks,product.weight,product.Size,product.color,product.Description
+		from product inner join productpic on productpic.productId=product.id  INNER JOIN productcategory on product.CategoryId=productcategory.id and
+		productcategory.ParentId=#{index} and 
+		product.id=productpic.productId
+		and productpic.PicType=0
+		ORDER BY productpic.creaTime desc 
+	</select>
+	<select id="selectProductSousuo" parameterType="java.lang.String" resultMap="resultProduct">
+		SELECT
+			product.id aid,
+			product.productName,
+			productpic.picUrl,
+			product.SellPrice,
+			product.DiscountPrice,
+			product.UnitPrice,
+			product.QuantityPerUnit,
+			product.clicks,
+			product.weight,
+			product.Size,
+			product.color,
+			product.Description 
+		FROM
+				(select * from product where product.productName like "%"#{productName}"%") product
+			INNER JOIN productpic  
+			on product.id = productpic.productId 
+			AND productpic.PicType = 0 
+		ORDER BY
+			product.DiscountPrice ASC
+	</select>
+	<select id="selectAllProductPets" resultMap="resultProduct">
+  		select  product.id aid,product.productName,productpic.picUrl,product.SellPrice,product.DiscountPrice,product.UnitPrice,product.QuantityPerUnit,
+		product.clicks,product.weight,product.Size,product.color,product.Description
+		from product inner join productpic on 
+		 product.id=productpic.productId GROUP BY product.productName
+	</select>
+	<select id="selectProductByTime" resultMap="resultProduct">
+		select  product.id aid,product.productName,productpic.picUrl,product.SellPrice,product.DiscountPrice,product.UnitPrice,product.QuantityPerUnit,
+		product.clicks,product.weight,product.Size,product.color,product.Description
+		from product inner join productpic on 
+		product.id=productpic.productId GROUP BY product.productName
+		  ORDER BY productpic.creaTime desc 
+	</select>
+  	<select id="selectdog" resultMap="resultProduct">
+  			select product.id aid,
+			product.productName,
+			productpic.picUrl,
+			product.SellPrice,
+			product.DiscountPrice,
+			product.UnitPrice,
+			product.QuantityPerUnit,
+			product.clicks,
+			product.weight,
+			product.Size,
+			product.color,
+			product.Description  from 
+			product INNER JOIN productcategory on product.CategoryId = productcategory.id
+			INNER JOIN productpic ON  product.id = productpic.productId 
+			AND productcategory.ParentId=1 GROUP BY product.productName ORDER BY product.id desc LIMIT 0,6
+  	</select>
+  	<select id="selectcat" resultMap="resultProduct">
+			select product.id aid,
+			product.productName,
+			productpic.picUrl,
+			product.SellPrice,
+			product.DiscountPrice,
+			product.UnitPrice,
+			product.QuantityPerUnit,
+			product.clicks,
+			product.weight,
+			product.Size,
+			product.color,
+			product.Description  from 
+			product INNER JOIN productcategory on product.CategoryId = productcategory.id
+			INNER JOIN productpic ON  product.id = productpic.productId 
+			AND productcategory.ParentId=2 GROUP BY product.productName ORDER BY product.id desc LIMIT 0,6
+  	</select>
+  	
+  	<select id="selectsmalledog" resultMap="resultProduct">
+  	select  product.id aid,product.productName,productpic.picUrl,product.SellPrice,product.DiscountPrice,product.UnitPrice,product.QuantityPerUnit,
+		product.clicks,product.weight,product.Size,product.color,product.Description
+		from product inner join productpic on product.CategoryId=4 and product.id=productpic.productId LIMIT 0,6;
+  	</select>
+  	
+  	<select id="selectAround" resultMap="resultProduct">
+  	select  product.id aid,product.productName,productpic.picUrl,product.SellPrice,product.DiscountPrice,product.UnitPrice,product.QuantityPerUnit,
+		product.clicks,product.weight,product.Size,product.color,product.Description
+		from product inner join productpic on product.CategoryId=8
+		and product.id=productpic.productId LIMIT 0,6;
+	</select>
+  	
+  	<select id="selectDemu" resultMap="resultProduct">
+  	select  product.id aid,product.productName,productpic.picUrl,product.SellPrice,product.DiscountPrice,product.UnitPrice,product.QuantityPerUnit,
+		product.clicks,product.weight,product.Size,product.color,product.Description
+		from product inner join productpic on product.CategoryId=13
+		and product.id=productpic.productId LIMIT 0,6;
+  	</select>
+  	
+  	<select id="selectAll" resultMap="resultProduct">
+  	SELECT a.id aid,a.CategoryId,a.productName,a.UnitPrice,a.SellPrice,a.DiscountPrice,a.QuantityPerUnit,a.clicks,a.weight,a.Size,a.color,a.Description,
+	b.picUrl FROM productpic as b,product as a WHERE a.id=b.id;
+  	</select>
+  	
+  	<select id="selectProductById" resultMap="resultProduct" parameterType="_int">
+  		select a.id aid,a.CategoryId,a.productName,a.UnitPrice,a.SellPrice,a.DiscountPrice,a.QuantityPerUnit,a.clicks,a.weight,a.Size,a.color,a.Description,
+  		b.*
+  		 from product as a inner join productpic as b on a.id=b.productId and  b.PicType=0 and a.id=#{id}
+  	</select>
+  	
+  	
+  	<resultMap type="Productpic" id="resultProductPic">
+			  <id property="id" column="aid"/>
+			  <result property="productId" column="productId"/>
+			  <result property="picUrl" column="picUrl"/>
+			  <result property="PicType" column="PicType"/>
+			  <result property="creaTime" column="creaTime"/>
+			  <result property="color" column="color"/>
+			  <result property="Ext2" column="Ext2"/>
+		   <association property="product" javaType="Product">
+			  <id property="id" column="id"/>
+			  <result property="CategoryId" column="categoryId"/>
+			  <result property="productName" column="productName"/>
+			  <result property="UnitPrice" column="unitPrice"/>
+			  <result property="SellPrice" column="sellPrice"/>
+			  <result property="DiscountPrice" column="discountPrice"/>
+			  <result property="QuantityPerUnit" column="quantityPerUnit"/>
+			  <result property="clicks" column="clicks"/>
+			  <result property="weight" column="weight"/>
+			  <result property="Size" column="size"/>
+			  <result property="color" column="pcolor"/>
+			  <result property="Description" column="description"/>
+			  <result property="Ext1" column="ext1"/>
+			  <result property="Ext2" column="ext3"/>
+		  </association>
+		  <association property="productstore" javaType="Productstore">
+		  		<id property="id" column="stockid" />
+		  		<result property="ProductPicId" column="stockProductPicId" />
+		  		<result property="QuantityInStock" column="stockQuantityInStock" />
+		  		<result property="MerchantId" column="stockMerchantId" />
+		  		<result property="Size" column="stockSize" />
+		  		<result property="Ext2" column="stockExt2" />
+		  </association>
+ 	 </resultMap>
+  
+  	<select id="selectProductPicPeiTu"  resultMap="resultProductPic" parameterType="_int">
+  		SELECT
+				product.id pid,
+			product.CategoryId,
+			product.productName,
+			product.UnitPrice,
+			product.SellPrice,
+			product.DiscountPrice,
+			product.QuantityPerUnit,
+			product.clicks,
+			product.weight,
+			product.Size,
+			product.color pcolor,
+			product.Description,
+			product.Ext1 Pext1,
+			product.Ext2 Pext2,
+			b.id aid,
+			b.productId,
+			b.picUrl,
+			b.picType,
+			b.creaTime,
+			b.color,
+			b.Ext2 ,
+			productstore.id stockid,
+			productstore.ProductPicId stockProductPicId,
+			productstore.QuantityInStock stockQuantityInStock,
+			productstore.MerchantId stockMerchantId,
+			productstore.Size stockSize,
+			productstore.Ext2 stockExt2
+		FROM
+			product
+			INNER JOIN productpic AS b ON product.id = b.productId 
+			INNER JOIN productstore ON productstore.ProductPicId = b.id 
+			AND b.PicType = 1 
+			AND product.id = #{id}
+  	</select>
+  	<resultMap type="Comments" id="resultComments">
+  		<id property="id" column="cid" />
+  		<result property="ProductId" column="ProductId" />
+  		<result property="CommentContent" column="CommentContent" />
+  		<result property="CommenTime" column="CommenTime" />
+  		<result property="bodyPrc" column="bodyPrc" />
+  		<result property="ProductMarks" column="ProductMarks" />
+  		<result property="ServiceMarks" column="ServiceMarks" />
+  		<result property="Status" column="Status" />
+  		<result property="Reply" column="Reply" />
+  		<result property="Ext1" column="userparentId" />
+  		<result property="Ext2" column="Ext2" />
+  			<association property="listProduct" javaType="Product" >
+  			  <id property="id" column="pid"/>
+			  <result property="CategoryId" column="categoryId"/>
+			  <result property="productName" column="productName"/>
+			  <result property="UnitPrice" column="unitPrice"/>
+			  <result property="SellPrice" column="sellPrice"/>
+			  <result property="DiscountPrice" column="discountPrice"/>
+			  <result property="QuantityPerUnit" column="quantityPerUnit"/>
+			  <result property="clicks" column="clicks"/>
+			  <result property="weight" column="weight"/>
+			  <result property="Size" column="size"/>
+			  <result property="color" column="color"/>
+			  <result property="Description" column="description"/>
+			  <result property="Ext1" column="Pext2"/>
+			  <result property="Ext2" column="Pext2"/>
+  			</association>
+  			<association property="listUser" javaType="User">
+  				<id property="id" column="uid" />
+  				<result property="username" column="username" />
+  				<result property="userpassword" column="userpassword" />
+  				<result property="Ext1" column="Uext1" />
+  				<result property="Ext2" column="Uext2" />
+  			</association>
+  	</resultMap>
+  	<select id="selectCommentsByBody" resultMap="resultComments" parameterType="_int" >
+		select comments.id cid,comments.ProductId,comments.CommentContent,comments.CommenTime,
+		comments.bodyPrc,comments.ProductMarks,comments.ServiceMarks,comments.`Status`,
+		comments.Reply,comments.Ext1,comments.Ext2,product.id pid,product.CategoryId,
+		product.productName,product.UnitPrice,product.SellPrice,product.DiscountPrice,
+		product.QuantityPerUnit,product.clicks,product.weight,product.Size,product.color,
+		product.Description,product.Ext1 Pext1,product.Ext2 Pext2,`user`.id uid,`user`.username,
+		`user`.userpassword,`user`.Ext1 Uext1,`user`.Ext2 Uext2 
+		from comments inner join product on comments.ProductId=product.id inner join `user` 
+		on comments.Ext1=`user`.id and product.id=#{id} and comments.`Status`=1
+  	</select>
+  	
+  	
+  	<resultMap type="Resposition" id="resultResposition">
+  			<id property="id" column="reid" />
+  			<result property="PositionId" column="PositionId" />
+  			<result property="ResId" column="ResId" />
+  			<result property="Weight" column="Weight" />
+  			<result property="Url" column="Url" />
+  			<result property="Type" column="Type" />
+  		<association property="positions" javaType="Positions" >
+  			<id property="id" column="posid" />
+	  		<result property="position" column="position" />
+	  		<result property="Ext1" column="posExt1" />
+  		</association>
+  		<association property="product" javaType="Product">
+  			<id property="id" column="pid"/>
+			  <result property="CategoryId" column="categoryId"/>
+			  <result property="productName" column="productName"/>
+			  <result property="UnitPrice" column="unitPrice"/>
+			  <result property="SellPrice" column="sellPrice"/>
+			  <result property="DiscountPrice" column="discountPrice"/>
+			  <result property="QuantityPerUnit" column="quantityPerUnit"/>
+			  <result property="clicks" column="clicks"/>
+			  <result property="weight" column="pweight"/>
+			  <result property="Size" column="size"/>
+			  <result property="color" column="color"/>
+			  <result property="Description" column="description"/>
+			  <result property="Ext1" column="Pext1"/>
+			  <result property="Ext2" column="Pext2"/>
+  		</association>
+  		<association property="productpic" javaType="Productpic">
+  			  <id property="id" column="picid"/>
+			  <result property="productId" column="productId"/>
+			  <result property="picUrl" column="picUrl"/>
+			  <result property="PicType" column="PicType"/>
+			  <result property="creaTime" column="creaTime"/>
+			  <result property="color" column="piccolor"/>
+			  <result property="Ext2" column="picExt2"/>
+  		</association>
+  	</resultMap>
+  		<select id="selectRespositionById" resultMap="resultResposition" parameterType="_int" >
+  			select positions.id posid,positions.position,positions.Ext1 posExt1,
+  			resposition.id reid,resposition.PositionId,resposition.ResId,
+  			resposition.Weight,resposition.Url,resposition.Type,product.id pid,
+  			product.CategoryId,product.productName,product.UnitPrice,product.SellPrice,
+  			product.DiscountPrice,product.QuantityPerUnit,product.clicks,product.weight pweight,
+  			product.Size,product.color,product.Description,product.Ext1 Pext1,
+  			product.Ext2 Pext2,productpic.id picid,productpic.productId,productpic.picUrl,
+  			productpic.PicType,productpic.creaTime,productpic.color piccolor,productpic.Ext2 picExt2
+  			from positions INNER JOIN resposition
+			on positions.id=resposition.PositionId inner join product 
+			on resposition.ResId=product.id INNER JOIN productpic on product.id=productpic.productId and productpic.PicType=0
+			and positions.position=#{id}
+			ORDER BY resposition.Weight desc;
+  		</select>
+  		
+  		
+  		
+  		
+  		
+  		
+  		
+  		
+  		
+  		
+  		
+  		
+  		<select id="selectCount" parameterType="Fenye" resultType="_int">
+		     select  count(p.id) from product p inner JOIN productpic pd  on   p.id=pd.productId  where pd.PicType=0
+		 </select>
+		 <select id="selectProductCategory" resultType="ProductCategory">
+		    select * from productCategory
+		 </select>
+		  <select id="selectProductPic"     resultType="Productpic">
+		    select * from productpic
+		 </select>
+		 <select id="selectProduct" parameterType="Fenye" resultType="Product">
+		    select p.*,pd.picUrl from product p inner JOIN productpic pd  on   p.id=pd.productId and pd.PicType=0
+		    <include refid="selectSql"></include>
+		    limit #{page},#{limit}
+		 </select>
+		  <select id="selectProductByidOne" parameterType="_int" resultType="Product">
+			select p.*,pd.picUrl,pd.PicType from product p inner JOIN productpic pd  on   p.id=pd.productId and pd.PicType=0  where p.id=#{id}
+		 </select> 
+		  <insert id="insertProduct"  parameterType="Product" >
+		   <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">  
+              SELECT LAST_INSERT_ID()  
+           </selectKey>  
+			insert into  product(CategoryId,productName,UnitPrice,SellPrice,DiscountPrice,QuantityPerUnit,clicks,weight,Size,color,Description,Ext1,Ext2) values(#{CategoryId},#{productName},#{UnitPrice},#{SellPrice},#{DiscountPrice},#{QuantityPerUnit},#{clicks},#{weight},#{Size},#{color},#{Description},#{Ext1},#{Ext2})
+		 </insert>
+		 <insert id="insertProductByHuiFu" parameterType="Product">
+		 	insert into  product(id,CategoryId,productName,UnitPrice,SellPrice,DiscountPrice,QuantityPerUnit,clicks,weight,Size,color,Description) values(#{id},#{CategoryId},#{productName},#{UnitPrice},#{SellPrice},#{DiscountPrice},#{QuantityPerUnit},#{clicks},#{weight},#{Size},#{color},#{Description})
+		 </insert>
+		 <insert id="insertProductPic" parameterType="Productpic">
+		    insert into  productpic(productId,picUrl,PicType) values(#{productId},#{picUrl},0);
+		 </insert>
+		  <update id="updateProduct" parameterType="Product" >
+		 
+		   update product set CategoryId=#{CategoryId},productName=#{productName},UnitPrice=#{UnitPrice},SellPrice=#{SellPrice},DiscountPrice=#{DiscountPrice},QuantityPerUnit=#{QuantityPerUnit},clicks=#{clicks},weight=#{weight},Size=#{Size},color=#{color},Description=#{Description},Ext1=#{Ext1},Ext2=#{Ext2} where id=#{id}
+		 </update>
+		 
+		 <update id="updateProductPic" parameterType="Productpic">
+		   update productpic set picUrl=#{picUrl}  WHERE productId=#{productId}
+		 </update>
+		 <delete id="deleteProduct" parameterType="String">
+		      delete from product  where id in 
+		     <foreach item="item" index="index" collection="array" 
+		              open="(" separator="," close=")">
+		             #{item}
+		     </foreach>
+ 		</delete> 
+  		
+  		
+  		<resultMap type="lately" id="resultlately">
+			  <id property="id" column="lid"/>
+			  <result property="productid" column="productid"/>
+			  <result property="userid" column="userid"/>
+			  <result property="Ext1" column="Ext1"/>
+			   <result property="Ext2" column="Ext2"/>
+		  <association property="product" javaType="Product">
+			   <id property="id" column="aid"/>
+			  <result property="CategoryId" column="categoryId"/>
+			  <result property="productName" column="productName"/>
+			  <result property="UnitPrice" column="unitPrice"/>
+			  <result property="SellPrice" column="sellPrice"/>
+			  <result property="DiscountPrice" column="discountPrice"/>
+			  <result property="QuantityPerUnit" column="quantityPerUnit"/>
+			  <result property="clicks" column="clicks"/>
+			  <result property="weight" column="weight"/>
+			  <result property="Size" column="size"/>
+			  <result property="color" column="color"/>
+			  <result property="Description" column="description"/>
+			  <result property="Ext1" column="ext1"/>
+			  <result property="Ext2" column="ext3"/>
+		  </association>
+		   <association property="productpic" javaType="Productpic">
+			  <id property="id" column="pid"/>
+			  <result property="productId" column="productId"/>
+			  <result property="picUrl" column="picUrl"/>
+			  <result property="PicType" column="PicType"/>
+			  <result property="creaTime" column="creaTime"/>
+			  <result property="color" column="color"/>
+			  <result property="Ext2" column="Ext22"/>
+		  </association>
+ 	 	</resultMap>
+  	 	<select id="selectLately" parameterType="Lately" resultType="Lately" resultMap="resultlately">
+   			select  lately.id lid,lately.productid,lately.userid,lately.Ext1,lately.Ext2,product.*,p.id pid,p.productId,p.picUrl,p.PicType,p.creaTime,p.color,p.Ext2 Ext22 from lately  INNER JOIN product on lately.productid=product.id INNER JOIN productpic p on p.productId=product.id   WHERE lately.userid=#{id} and p.PicType=0  ORDER BY  lately.id desc limit 5
+  		</select>
+  		
+  		
+  		<select id="selectProductByPriceDesc" resultMap="resultProduct" parameterType="_int">
+  			select  product.id aid,product.productName,productpic.picUrl,product.SellPrice,product.DiscountPrice,product.UnitPrice,			product.QuantityPerUnit,
+			product.clicks,product.weight,product.Size,product.color,product.Description
+			from product inner join productpic on productpic.productId=product.id  INNER JOIN productcategory on product.CategoryId=productcategory.id and
+			productcategory.ParentId=#{id} and 
+			product.id=productpic.productId
+			and productpic.PicType=0
+			ORDER BY product.UnitPrice desc 
+  		</select>
+  		<!-- 查询所有宠物名称和id供推介使用 -->
+  		<select id="selectProductByName" resultType="Product">
+  			select id,productName  from product ORDER BY product.id desc
+  		</select>
+  		<select id="selectProductBtAsc" resultMap="resultProduct">
+  			select  product.id aid,product.productName,productpic.picUrl,product.SellPrice,product.DiscountPrice,product.UnitPrice,product.QuantityPerUnit,
+			product.clicks,product.weight,product.Size,product.color,product.Description
+			from product inner join productpic on 
+			product.id=productpic.productId GROUP BY product.productName
+			  ORDER BY product.UnitPrice asc 
+  		</select>
+  		<select id="selectAllProductByTimeAndClassByZiLeiASC" resultMap="resultProduct">
+  				select  product.id aid,product.productName,productpic.picUrl,product.SellPrice,product.DiscountPrice,product.UnitPrice,			product.QuantityPerUnit,
+			product.clicks,product.weight,product.Size,product.color,product.Description
+			from product inner join productpic on productpic.productId=product.id  INNER JOIN productcategory on product.CategoryId=	productcategory.id and
+			product.CategoryId=#{parentid} and 
+			product.id=productpic.productId
+			and productpic.PicType=0
+			ORDER BY product.UnitPrice asc 
+  		</select>
+  		<select id="selectProductTimeDesc" resultMap="resultProduct">
+  			select  product.id aid,product.productName,productpic.picUrl,product.SellPrice,product.DiscountPrice,product.UnitPrice,			product.QuantityPerUnit,
+			product.clicks,product.weight,product.Size,product.color,product.Description
+			from product inner join productpic on productpic.productId=product.id  INNER JOIN productcategory on product.CategoryId=	productcategory.id and
+			product.CategoryId=#{parentid} and 
+			product.id=productpic.productId
+			and productpic.PicType=0
+			ORDER BY productpic.creaTime desc
+  		</select>
+  </mapper>

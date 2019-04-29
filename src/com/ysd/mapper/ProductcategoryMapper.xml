@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <mapper namespace="com.ysd.mapper.ProductcategoryMapper">
+	<select id="selectProduct" resultType="Productcategory">
+			select * from productcategory;
+	</select>
+	<select id="selectCount" parameterType="Fenye" resultType="_int">
+    select count(*) from productcategory 
+ </select>
+ <!-- 分页类使用  -->
+ <select id="selectProductCategory" parameterType="Fenye" resultType="ProductCategory">
+ select a.*,c.productCategoryName as leiName from productcategory a left JOIN productcategory c on a.ParentId=c.id
+    <!-- select * from productcategory -->
+    limit #{page},#{limit}
+ </select>
+ <select id="selectProductCategoryByid" parameterType="_int" resultType="ProductCategory">
+	select * from productcategory where id=#{id}
+ </select>
+  <insert id="insertProductCategory"  parameterType="ProductCategory" >
+	insert into  productcategory(productCategoryName,ParentId,Ext1,Ext2) values(#{productCategoryName},#{ParentId},#{Ext1},#{Ext2})
+ </insert>
+  <update id="updateProductCategory" parameterType="Productcategory" >
+   update productcategory set productCategoryName=#{productCategoryName},ParentId=#{ParentId},Ext1=#{Ext1},Ext2=#{Ext2} where id=#{id}
+ </update>
+ <delete id="deleteProductCategory" parameterType="String">
+      delete from productcategory  where id in 
+     <foreach item="item" index="index" collection="array" 
+              open="(" separator="," close=")">
+             #{item}
+     </foreach>
+ </delete> 
+ <select id="selectProductcategory" resultType="Productcategory">
+ 	select * from productcategory 
+ </select>
+  </mapper>

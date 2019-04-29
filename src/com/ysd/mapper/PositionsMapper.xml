@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <mapper namespace="com.ysd.mapper.PositionsMapper">
+  	<select id="selectPositions" resultType="Positions" >
+  		select * from positions ;
+  	</select>
+  	<resultMap type="Product" id="resultResposition">
+  			  <id property="id" column="pid"/>
+			  <result property="CategoryId" column="pCategoryId"/>
+			  <result property="productName" column="pproductName"/>
+			  <result property="UnitPrice" column="pUnitPrice"/>
+			  <result property="SellPrice" column="pSellPrice"/>
+			  <result property="DiscountPrice" column="pDiscountPrice"/>
+			  <result property="QuantityPerUnit" column="pQuantityPerUnit"/>
+			  <result property="clicks" column="pclicks"/>
+			  <result property="weight" column="pweight"/>
+			  <result property="Size" column="pSize"/>
+			  <result property="color" column="pcolor"/>
+			  <result property="Description" column="pDescription"/>
+			  <result property="Ext1" column="pExt1"/>
+			  <result property="Ext2" column="pExt2"/>
+  		<association property="positions" javaType="Positions" >
+  			<id property="id" column="posid" />
+	  		<result property="position" column="posposition" />
+	  		<result property="Ext1" column="posExt1" />
+  		</association>
+  		<association property="resposition" javaType="Resposition">
+  			<id property="id" column="reid" />
+  			<result property="PositionId" column="rePositionId" />
+  			<result property="ResId" column="reResId" />
+  			<result property="Weight" column="reWeight" />
+  			<result property="Url" column="reUrl" />
+  			<result property="Type" column="reType" />
+  		</association>
+  		<association property="pro" javaType="Productpic">
+  			<id property="id" column="proid"/>
+			  <result property="productId" column="proproductId"/>
+			  <result property="picUrl" column="propicUrl"/>
+			  <result property="PicType" column="proPicType"/>
+			  <result property="creaTime" column="procreaTime"/>
+			  <result property="color" column="procolor"/>
+			  <result property="Ext2" column="proExt2"/>
+  		</association>
+  	</resultMap>
+  		<select id="selectPositionsByid" resultMap="resultResposition" parameterType="_int" >
+  		SELECT
+			product.id pid,
+			product.CategoryId pCategoryId,
+			product.productName pproductName,
+			product.UnitPrice pUnitPrice,
+			product.SellPrice pSellPrice,
+			product.DiscountPrice pDiscountPrice,
+			product.QuantityPerUnit pQuantityPerUnit,
+			product.clicks pclicks,
+			product.weight pweight,
+			product.Size pSize,
+			product.color pcolor,
+			product.Description pDescription,
+			product.Ext1 pExt1,
+			product.Ext2 pExt2,
+			resposition.id reid,
+			resposition.PositionId rePositionId,
+			resposition.ResId reResId,
+			resposition.Weight reWeight,
+			resposition.Url reUrl,
+			resposition.Type reType,
+			positions.id posid,
+			positions.position posposition,
+			positions.Ext1 posExt1,
+			productpic.id proid,
+			productpic.productId proproductId,
+			productpic.picUrl propicUrl,
+			productpic.PicType proPicType,
+			productpic.creaTime procreaTime,
+			productpic.color procolor,
+			productpic.Ext2 proExt2 
+		FROM
+			product
+			INNER JOIN resposition ON resposition.ResId = product.id
+			INNER JOIN positions ON positions.id = resposition.PositionId
+			INNER JOIN productpic ON product.id = productpic.productId 
+			AND productpic.PicType = 0 
+			AND positions.id = #{id}	
+  		</select>
+  		<select id="selectPositionsByidCount" resultType="int" parameterType="_int">
+  			select 
+			count(1)
+			FROM
+			product  INNER JOIN resposition ON resposition.ResId = product.id INNER JOIN positions on positions.id = resposition.		     PositionId INNER JOIN productpic ON product.id = productpic.productId 
+			AND productpic.PicType = 0 
+			AND positions.position =#{id}
+  		</select>
+  		<insert id="insertPositions" parameterType="Resposition">
+  			insert into resposition(PositionId,ResId,Weight)VALUES(#{PositionId},#{ResId},#{Weight})
+  		</insert>
+  		<delete id="deleteRePositions" parameterType="_int">
+  			DELETE from resposition where ResId =#{pid}
+  		</delete>
+  </mapper>

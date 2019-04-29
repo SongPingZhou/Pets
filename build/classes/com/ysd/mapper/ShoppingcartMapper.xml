@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <mapper namespace="com.ysd.mapper.ShoppingcartMapper">
+  		<resultMap type="ShoppingCart" id="resultShoppingCart">
+	  			<id property="id" column="cartid" />
+	  			<result property="userid" column="cartuserid" />
+	  			<result property="productId" column="cartproductId" />
+	  			<result property="size" column="cartsize" />
+	  			<result property="Ext2" column="cartExt2" />
+	  		<association property="product" javaType="Product">
+	  			<id property="id" column="pid" />
+	  			<result property="productName" column="pproductName" />
+	  			<result property="UnitPrice" column="pUnitPrice" />
+	  		</association>
+	  		<association property="productpic" javaType="Productpic">
+	  			<id property="id" column="picid" />
+	  			<result property="picUrl" column="picpicUrl" />
+	  			<result property="color" column="piccolor" />
+	  		</association>
+  		</resultMap>
+  		<!-- 前台显示用户的购物车 -->
+  		<select id="selectShoppingCart" resultMap="resultShoppingCart" parameterType="_int" >
+  				select 
+				shoppingcart.id cartid,
+				shoppingcart.userid cartuserid,
+				shoppingcart.productId cartproductId,
+				shoppingcart.size cartsize ,
+				shoppingcart.Ext2 cartExt2,
+				product.id pid,
+				product.productName pproductName,
+				product.UnitPrice pUnitPrice,
+				productpic.id picid,
+				productpic.picUrl picpicUrl,
+				productpic.color piccolor
+				 from shoppingcart 
+				 INNER JOIN `user` on shoppingcart.userid=`user`.id 
+				 INNER JOIN product on shoppingcart.productId= product.id
+				 INNER JOIN productpic on shoppingcart.Ext2=productpic.id
+				 and `user`.id=#{uid}
+  		</select>
+  		<select id="selectShoppingCartByCartidAndUserId" resultMap="resultShoppingCart" parameterType="String">
+  			select 
+				shoppingcart.id cartid,
+				shoppingcart.userid cartuserid,
+				shoppingcart.productId cartproductId,
+				shoppingcart.size cartsize ,
+				shoppingcart.Ext2 cartExt2,
+				product.id pid,
+				product.productName pproductName,
+				product.UnitPrice pUnitPrice,
+				productpic.id picid,
+				productpic.picUrl picpicUrl,
+				productpic.color piccolor
+				 from shoppingcart 
+				 INNER JOIN `user` on shoppingcart.userid=`user`.id 
+				 INNER JOIN product on shoppingcart.productId= product.id
+				 INNER JOIN productpic on shoppingcart.Ext2=productpic.id
+				 and  shoppingcart.id in 
+					<foreach item="item" index="index" collection="array" 
+		              open="(" separator="," close=")">
+		             			#{item}
+		     		</foreach>
+  		</select>
+  		<!-- 添加购物车的购买数量 -->
+  		<update id="addShoppingcartSize" parameterType="_int">
+  			update shoppingcart set size=size+1 where id=#{id}
+  		</update>
+  		
+  		<!-- 减少购物车的购买数量 -->
+  		<update id="reduceShoppingcartSize" parameterType="_int">
+  			update shoppingcart set size=size-1 where id=#{id}
+  		</update>
+  		
+  		<!-- 用户删除购物车的数据 -->
+  		<delete id="deleteShoppingcart" parameterType="_int">
+  			delete from shoppingcart where id =#{id} 
+  		</delete>
+  		<!-- 添加购物车 -->
+  		<insert id="AddShoppingcart" parameterType="ShoppingCart">
+  			 insert INTO shoppingcart(userid,productId,size,Ext2) 
+  			 VALUES(#{userid},#{productId},#{size},#{Ext2})
+  		</insert>
+  		<!-- 清空购物车 -->
+  		<delete id="DeleteShopping" parameterType="_int">
+  			delete from  shoppingcart where id>0 and userid=#{id}
+  		</delete>
+  		<!-- 查询用户下是否有相同的数据 -->
+  		<select id="selectShoppingCartByUseridAndPeitu" resultType="ShoppingCart" parameterType="_int">
+  			 select * from shoppingcart where userid = #{0} and Ext2=#{1};
+  		</select>
+  		<!-- 购物车如果已经存在则添加其数量 -->
+  		<update id="updateShopping" parameterType="_int">
+  			 update shoppingcart set size=size+#{2} where  userid = #{0} and Ext2=#{1};
+  		</update>
+  </mapper>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <mapper namespace="com.ysd.mapper.AddressMapper">
+  	<insert id="InsterAddress" parameterType="Address">
+  	insert INTO address(userid,name,contact,tel,country,province,city,town,address,postcode)
+  	 VALUES(#{userid},#{name},#{contact},#{tel},#{country},#{province},#{city},#{town},#{Address},#{postcode})
+  	</insert>
+  	<delete id="deleteAddress" parameterType="_int">
+  		delete from address where id=#{id};
+  	</delete>
+  	<select id="selectAddressByid" resultType="Address" parameterType="_int" >
+  		select * from Address where id=#{id};
+  	</select>
+  	<resultMap type="Address" id="resultAddress">
+			  <id property="id" column="aid"/>
+			   <result property="userid" column="userid"/>
+			   <result property="name" column="name"/>
+			   <result property="contact" column="contact"/>
+			   <result property="tel" column="tel"/>
+			   <result property="country" column="country"/>
+			   <result property="province" column="province"/>
+			   <result property="city" column="city"/>
+			   <result property="town" column="town"/>
+			   <result property="Address" column="Address"/>
+			   <result property="postcode" column="postcode"/>
+			   <result property="Ext1" column="Ext11"/>
+		  <association property="user" javaType="User">
+			  <id property="id" column="id"/>
+			  <result property="username" column="username"/>
+			   <result property="userpassword" column="userpassword"/>
+			   <result property="Ext1" column="Ext1"/>
+			   <result property="Ext2" column="Ext2"/>
+			 
+		  </association>
+ 	 </resultMap>
+  	<select id="selectAddressByidqian" resultMap="resultAddress">
+  	select a.id aid,a.userid,a.name,a.contact,a.tel,a.country,a.province,a.city,a.town,a.Address,a.postcode,a.Ext1 Ext11,u.* from address a INNER JOIN user u on u.id=a.userid where a.id=#{id};
+  	</select>
+  </mapper>

@@ -1,0 +1,368 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ysd.mapper.OrdersDetailsMapper">
+
+		<sql id="selectSql">
+			<where>
+	            <if test="StartPrice !=null and StartPrice !=''">
+				    and o.UnitPrice &gt;=#{StartPrice}
+				</if>
+				<if test="EndPrice !=null and EndPrice !=''">
+					and o.UnitPrice &lt;= #{EndPrice}
+				</if>
+			  </where>
+		</sql>
+		
+		<select id="selectCount" parameterType="Fenye" resultType="_int">
+		     select count(*) from ordersdetails  o inner JOIN  product p on p.id=o.productId 
+		    <include refid="selectSql"></include>
+		 </select>
+		 
+		 <resultMap type="OrdersDetails" id="OrdersDetailsMapper">
+		 	<id property="id" column="aid" />
+		 	<result property="OrderId" column="OrderId" />
+		 	<result property="UnitPrice" column="UnitPrice" />
+		 	<result property="Quantity" column="Quantity" />
+		 	<result property="Color" column="Color" />
+		 	<result property="Remark" column="Remark" />
+		 	<result property="productId" column="productId" />
+		 	<result property="Ext1" column="Ext1" />
+	 	    <association property="product" javaType="Product" >
+				  <id property="id" column="id"/>
+				  <result property="CategoryId" column="CategoryId"/>
+				  <result property="productName" column="productName"/>
+				  <result property="picUrl" column="picUrl"/>
+				  <result property="UnitPrice" column="UnitPrice"/>
+				  <result property="SellPrice" column="SellPrice"/>
+				  <result property="DiscountPrice" column="DiscountPrice"/>
+				  <result property="QuantityPerUnit" column="QuantityPerUnit"/>
+				  <result property="clicks" column="clicks"/>
+				  <result property="weight" column="weight"/>
+				  <result property="Size" column="Size"/>
+				  <result property="color" column="color"/>
+				  <result property="Description" column="Description"/>
+				  <result property="Ext1" column="Ext1"/>
+				  <result property="Ext2" column="Ext2"/>
+			</association> 	  
+		 </resultMap>
+		 
+		 <select id="selectOrdersDetails" parameterType="Fenye" resultMap="OrdersDetailsMapper">
+		    select o.id aid,o.OrderId,o.UnitPrice,o.Quantity,o.Color,o.Remark,o.productId,o.Ext1,p.* from ordersdetails  o  inner JOIN product p on p.id=o.productId
+		    <include refid="selectSql"></include>
+		    limit #{page},#{limit}  
+		 </select>
+		 
+		 <select id="selectOrdersDetailsByid" parameterType="_int" resultType="OrdersDetails">
+			 select p.*,o.* from ordersdetails  o inner JOIN  product p on p.id=o.productId where o.id=#{id}
+		 </select>
+		 
+		 <resultMap type="OrdersDetails" id="resultOrdersDetailsMapper">
+		 	<id property="id" column="ordid" />
+		 	<result property="OrderId" column="ordOrderId" />
+		 	<result property="UnitPrice" column="ordUnitPrice" />
+		 	<result property="Quantity" column="ordQuantity" />
+		 	<result property="Color" column="ordColor" />
+		 	<result property="Remark" column="ordRemark" />
+		 	<result property="productId" column="ordproductId" />
+		 	<result property="Ext1" column="ordExt1" />
+		 	
+		 	<association property="product" javaType="Product">
+		 	  <id property="id" column="pid"/>
+			  <result property="CategoryId" column="pCategoryId"/>
+			  <result property="productName" column="pproductName"/>
+			  <result property="UnitPrice" column="pUnitPrice"/>
+			  <result property="SellPrice" column="pSellPrice"/>
+			  <result property="DiscountPrice" column="pDiscountPrice"/>
+			  <result property="QuantityPerUnit" column="pQuantityPerUnit"/>
+			  <result property="clicks" column="pclicks"/>
+			  <result property="weight" column="pweight"/>
+			  <result property="Size" column="pSize"/>
+			  <result property="color" column="pcolor"/>
+			  <result property="Description" column="pDescription"/>
+			  <result property="Ext1" column="pExt1"/>
+			  <result property="Ext2" column="pExt2"/>
+		 	</association>
+		 		
+		 	<association property="productpic" javaType="Productpic">
+		 	  <id property="id" column="picid"/>
+			  <result property="productId" column="picproductId"/>
+			  <result property="picUrl" column="picpicUrl"/>
+			  <result property="PicType" column="picPicType"/>
+			  <result property="creaTime" column="piccreaTime"/>
+			  <result property="color" column="piccolor"/>
+			  <result property="Ext2" column="picExt2"/>
+		 	</association>
+		 		
+		 	<association property="orders" javaType="Orders">
+		 	   <id property="id" column="oid"/>
+			   <result property="OrderDate" column="oOrderDate"/>
+			   <result property="CustomerId" column="oCustomerId"/>
+			   <result property="TotalMoney" column="oTotalMoney"/>
+			   <result property="Status" column="oStatus"/>
+			   <result property="ShipName" column="oShipName"/>
+			   <result property="ShipNum" column="oShipNum"/>
+			   <result property="ShipDate" column="oShipDate"/>
+			   <result property="ShipCountry" column="oShipCountry"/>
+			   <result property="ShipProvince" column="oShipProvince"/>
+			   <result property="ShipCity" column="oShipCity"/>
+			   <result property="ShipTown" column="oShipTown"/>
+			   <result property="ShipAddress" column="oShipAddress"/>
+			   <result property="ShipPostCode" column="oShipPostCode"/>
+			   <result property="Ext2" column="oExt2"/>
+		 	</association>
+		 	
+		 </resultMap> 
+		 
+		<select id="selectAllOrdersDetails" parameterType="_int" resultMap="resultOrdersDetailsMapper">
+			SELECT
+			 ordersdetails.id ordid,
+			 ordersdetails.OrderId ordOrderId,
+			 ordersdetails.UnitPrice ordUnitPrice,
+			 ordersdetails.Quantity ordQuantity,
+			 ordersdetails.Color ordColor,
+			 ordersdetails.Remark ordRemark,
+			 ordersdetails.Ext1 ordExt1,
+			 ordersdetails.productId ordproductId,
+			 product.id pid,
+			 product.CategoryId pCategoryId,
+			 product.productName pproductName,
+			 product.UnitPrice pUnitPrice,
+			 product.SellPrice pSellPrice,
+			 product.DiscountPrice pDiscountPrice,
+			 product.QuantityPerUnit pQuantityPerUnit,
+			 product.clicks pclicks,
+			 product.weight pweight,
+			 product.Size pSize,
+			 product.color pcolor,
+			 product.Description pDescription,
+			 product.Ext1 pExt1,
+			 product.Ext2 pExt2,
+			 productpic.id picid,
+			 productpic.productId picproductId,
+			 productpic.picUrl picpicUrl,
+			 productpic.PicType picPicType,
+			 productpic.creaTime piccreaTime,
+			 productpic.color piccolor,
+			 productpic.Ext2 picExt2,
+			 orders.id oid,  
+			 orders.OrderDate oOrderDate,
+			 orders.CustomerId oCustomerId,
+			 orders.TotalMoney oTotalMoney,
+			 orders.`Status` oStatus,
+			 orders.ShipName oShipName,
+			 orders.ShipNum oShipNum,
+			 orders.ShipDate oShipDate,
+			 orders.ShipCountry oShipCountry,
+			 orders.ShipProvince oShipProvince,
+			 orders.ShipCity oShipCity,
+			 orders.ShipTown oShipTown,
+			 orders.ShipAddress oShipAddress,
+			 orders.ShipPostCode oShipPostCode,
+			 orders.Ext2 oExt2
+		FROM
+			ordersdetails
+			INNER JOIN orders ON orders.id = ordersdetails.OrderId
+			INNER JOIN product ON product.id = ordersdetails.productId
+			INNER JOIN productpic ON productpic.productId = product.id
+			AND orders.CustomerId = #{0} 
+			AND ordersdetails.OrderId = #{1}
+			AND ordersdetails.Ext1=#{2}
+		</select>
+		<update id="updateOrdersDetails" parameterType="_int">
+			UPDATE ordersdetails  set Ext1=#{0} where id= #{1}
+		</update>
+		<update id="updateOrdersDetai" parameterType="String">
+			UPDATE orders  set `Status`=#{0} where ShipNum= #{1}
+		</update>
+		<select id="selectOrdersDetailsByProductId" resultType="_int" parameterType="_int" >
+			select OrderId from ordersdetails where productId=#{productId}
+		</select>
+		<select id="selectOrdersDetailsByOrderId" resultType="OrdersDetails" parameterType="_int">
+			select * from ordersdetails where  Ext1=#{0} and OrderId=#{1} 
+		</select>
+		<!-- 查询所有符合状态的用户订单详情信息 -->
+		
+		<resultMap type="OrdersDetails" id="resultOrdersDetailsByUserIdMapper">
+		 	<id property="id" column="ordid" />
+		 	<result property="OrderId" column="ordOrderId" />
+		 	<result property="UnitPrice" column="ordUnitPrice" />
+		 	<result property="Quantity" column="ordQuantity" />
+		 	<result property="Color" column="ordColor" />
+		 	<result property="Remark" column="ordRemark" />
+		 	<result property="productId" column="ordproductId" />
+		 	<result property="Ext1" column="ordExt1" />
+		 	<association property="orders" javaType="Orders">
+		 	<id property="id" column="oid" />
+		 	<result property="ShipAddress" column="ShipAddress" />
+		 	</association>
+		 	<association property="product" javaType="Product">
+		 	  <id property="id" column="pid"/>
+			  <result property="CategoryId" column="pCategoryId"/>
+			  <result property="productName" column="pproductName"/>
+			  <result property="UnitPrice" column="pUnitPrice"/>
+			  <result property="SellPrice" column="pSellPrice"/>
+			  <result property="DiscountPrice" column="pDiscountPrice"/>
+			  <result property="QuantityPerUnit" column="pQuantityPerUnit"/>
+			  <result property="clicks" column="pclicks"/>
+			  <result property="weight" column="pweight"/>
+			  <result property="Size" column="pSize"/>
+			  <result property="color" column="pcolor"/>
+			  <result property="Description" column="pDescription"/>
+			  <result property="Ext1" column="pExt1"/>
+			  <result property="Ext2" column="pExt2"/>
+		 	</association>
+		 	
+		 	<association property="productpic" javaType="Productpic">
+		 	  <id property="id" column="picid"/>
+			  <result property="productId" column="picproductId"/>
+			  <result property="picUrl" column="picpicUrl"/>
+			  <result property="PicType" column="picPicType"/>
+			  <result property="creaTime" column="piccreaTime"/>
+			  <result property="color" column="piccolor"/>
+			  <result property="Ext2" column="picExt2"/>
+		 	</association>
+		 </resultMap> 
+		<select id="selectOrdersDetailsByUserid" resultMap="resultOrdersDetailsByUserIdMapper" parameterType="_int">
+			SELECT
+				 ordersdetails.id ordid,
+				 ordersdetails.OrderId ordOrderId,
+				 ordersdetails.UnitPrice ordUnitPrice,
+				 ordersdetails.Quantity ordQuantity,
+				 ordersdetails.Color ordColor,
+				 ordersdetails.Remark ordRemark,
+				 ordersdetails.Ext1 ordExt1,
+				 ordersdetails.productId ordproductId,
+				  orders.id oid ,
+				   orders.ShipAddress ,
+				 product.id pid,
+				 product.CategoryId pCategoryId,
+				 product.productName pproductName,
+				 product.UnitPrice pUnitPrice,
+				 product.SellPrice pSellPrice,
+				 product.DiscountPrice pDiscountPrice,
+				 product.QuantityPerUnit pQuantityPerUnit,
+				 product.clicks pclicks,
+				 product.weight pweight,
+				 product.Size pSize,
+				 product.color pcolor,
+				 product.Description pDescription,
+				 product.Ext1 pExt1,
+				 product.Ext2 pExt2,
+				 productpic.id picid,
+				 productpic.productId picproductId,
+				 productpic.picUrl picpicUrl,
+				 productpic.PicType picPicType,
+				 productpic.creaTime piccreaTime,
+				 productpic.color piccolor,
+				 productpic.Ext2 picExt2
+			FROM
+				ordersdetails
+				INNER JOIN orders ON ordersdetails.OrderId = orders.id
+				INNER JOIN product on ordersdetails.productId=product.id
+				INNER JOIN productpic on productpic.productId=product.id
+				INNER JOIN `user` ON orders.CustomerId = `user`.id 
+				AND `user`.id =#{0} and ordersdetails.Ext1=#{1}
+		</select>
+		<delete id="deleteOrdersDetails" parameterType="_int">
+			delete from  ordersdetails where orderid=#{0} and productid = #{1}
+		</delete>
+		
+		<select id="selectOrdersDetailsByUserIdAndOrderId" resultMap="resultOrdersDetailsByUserIdMapper" parameterType="_int">
+				SELECT
+				 ordersdetails.id ordid,
+				 ordersdetails.OrderId ordOrderId,
+				 ordersdetails.UnitPrice ordUnitPrice,
+				 ordersdetails.Quantity ordQuantity,
+				 ordersdetails.Color ordColor,
+				 ordersdetails.Remark ordRemark,
+				 ordersdetails.Ext1 ordExt1,
+				 ordersdetails.productId ordproductId,
+				  orders.id oid,
+				  orders.ShipAddress ,
+				 product.id pid,
+				 product.CategoryId pCategoryId,
+				 product.productName pproductName,
+				 product.UnitPrice pUnitPrice,
+				 product.SellPrice pSellPrice,
+				 product.DiscountPrice pDiscountPrice,
+				 product.QuantityPerUnit pQuantityPerUnit,
+				 product.clicks pclicks,
+				 product.weight pweight,
+				 product.Size pSize,
+				 product.color pcolor,
+				 product.Description pDescription,
+				 product.Ext1 pExt1,
+				 product.Ext2 pExt2,
+				 productpic.id picid,
+				 productpic.productId picproductId,
+				 productpic.picUrl picpicUrl,
+				 productpic.PicType picPicType,
+				 productpic.creaTime piccreaTime,
+				 productpic.color piccolor,
+				 productpic.Ext2 picExt2
+			FROM 
+				ordersdetails
+				INNER JOIN orders ON ordersdetails.OrderId = orders.id
+				INNER JOIN product on ordersdetails.productId=product.id
+				INNER JOIN productpic on productpic.productId=product.id
+				INNER JOIN `user` ON orders.CustomerId = `user`.id 
+				where ordersdetails.OrderId in
+					<foreach item="item" index="index" collection="array" 
+		              open="(" separator="," close=")">
+		             			#{item}
+		     		</foreach>
+		</select>
+		
+		<delete id="deleteOrde" parameterType="_int">
+				delete from ordersdetails where OrderId=#{id};
+		</delete>
+		
+		<select id="selectOrderDe" resultType="OrdersDetails" parameterType="_int">
+			select * from OrdersDetails where orderId=#{orderId};
+		</select>
+		<insert id="insertOrdersDetails" parameterType="OrdersDetails">
+			insert INTO ordersdetails(OrderId,UnitPrice,Quantity,Color,Remark,Ext1,productId) 
+	  		VALUES(#{OrderId},(#{UnitPrice}*#{Quantity}),#{Quantity},#{Color},#{Remark},#{Ext1},#{productId})
+		</insert>
+		<select id="selectOrderByid" resultType="_int" parameterType="_int">
+			select OrderId from ordersdetails where id=#{id}
+		</select>
+		
+		<select id="selectOrdersDetailsByOid" resultType="OrdersDetails" parameterType="_int">
+			select * from ordersdetails where ordersdetails.OrderId=#{orderid}
+		</select>
+		 <resultMap type="OrdersDetails" id="resultOrdersDetailsPicidMapper">
+		 	<result property="Quantity" column="size" />
+		 	<association property="product" javaType="Product">
+		 	  <id property="id" column="pid"/>
+		 	</association>
+		 	<association property="productpic" javaType="Productpic">
+		 	  <id property="id" column="picid"/>
+		 	</association>
+		 </resultMap> 
+		<select id="selectOrdersDetailsByPidAndColorAndPicid" resultMap="resultOrdersDetailsPicidMapper" parameterType="String" >
+			SELECT
+				productpic.id picid,
+				ordersdetails.Quantity size,
+				ordersdetails.productId pid 
+			FROM
+				ordersdetails
+				INNER JOIN product ON product.id = ordersdetails.productId
+				INNER JOIN productpic ON productpic.productId = product.id 
+				and ordersdetails.Color=productpic.color
+				AND ordersdetails.color = #{0} 
+				AND ordersdetails.productId = #{1} 
+				AND ordersdetails.OrderId = #{2} 
+			GROUP BY
+				ordersdetails.color
+		</select>
+		
+		<select id="selectOrderDeByid" resultType="OrdersDetails" parameterType="_int">
+			SELECT * FROM `ordersdetails` where id=#{OrdersDeid}
+		</select>
+		<select id="selectOrderByShipNum" resultType="_int" parameterType="String">
+			select id from   orders where ShipNum =#{ShipNum}
+		</select>
+</mapper>

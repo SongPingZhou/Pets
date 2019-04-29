@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ysd.mapper.UserMapper">
+<select id="selectCount" parameterType="Fenye" resultType="_int">
+    select count(*) from user 
+ </select>
+ <select id="selectUser" parameterType="Fenye" resultType="User">
+    select * from user
+    limit #{page},#{limit}
+ </select>
+ <select id="selectUserByid" parameterType="_int" resultType="User">
+	select * from user where id=#{id}
+ </select>
+ <insert id="insertUser"  parameterType="User" >
+	insert into  user(username,userpassword,Ext1,Ext2) values(#{username},#{userpassword},#{Ext1},#{Ext2})
+ </insert>
+  <update id="updateUser" parameterType="User" >
+   update user set username=#{username},userpassword=#{userpassword},Ext1=#{Ext1},Ext2=#{Ext2} where id=#{id}
+ </update>
+ <update id="updateuserByPwd" parameterType="User" >
+ 	 update user set userpassword=#{userpassword}  where id=#{id}
+ </update>
+ <delete id="deleteUser" parameterType="String">
+      delete from user  where id in 
+     <foreach item="item" index="index" collection="array" 
+              open="(" separator="," close=")">
+             #{item}
+     </foreach>
+ </delete>
+ 
+ <select id="selectUserByUser" resultType="User" parameterType="user">
+ 		SELECT * FROM `user` where username = #{username} and userpassword =#{userpassword};
+ </select>
+  <select id="selectUserUserName" resultType="User" parameterType="user">
+ 		SELECT * FROM `user` where username = #{username} 
+ </select>
+ 
+ <insert id="insertUserUserName"  parameterType="User" >
+	insert into  user(username,userpassword,Ext1) values(#{username},#{userpassword},#{Ext1});
+ </insert>
+ <!-- 刚刚注册的新用户 -->
+ <select id="selectNewUser" resultType="User">
+ 	select * from USER ORDER BY id desc LIMIT 0,1
+ </select>
+ 
+ <insert id="insertNewusercustomers" parameterType="_int">
+		insert INTO usercustomers(userid)VALUES(#{id})
+ </insert>
+ 
+ <select id="selectUserUserNamePhone" resultType="User" parameterType="user">
+ 		SELECT * FROM `user` where username=#{username} and Ext1=#{Ext1}
+ </select>
+ 
+<!--  <select id="selectUserUserName" resultType="User" parameterType="user">
+ 		SELECT * FROM `user` where username = #{username} 
+ </select> -->
+ 
+ 
+  <update id="updateUserUserPhone"  parameterType="User" >
+	update  user set userpassword=#{userpassword}  where username=#{username}
+ </update>
+ 
+ 
+</mapper>
